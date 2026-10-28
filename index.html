@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Merchandising &amp; Inventory Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: University of New Haven course material, same frame as the Accounting Cycle Ledger Lab.
+   Frozen navy header over a frozen timeline band; the journal entry card holds every control;
+   T-accounts beside it; trial balance and multi-step statements below; journal last. */
+:root{
+  --navy:#002D74; --gold:#FFC629;
+  --paper:#eff2f7; --sheet:#ffffff; --ink:#111b2e; --muted:#56617a; --rule:#d8dfea; --rule-strong:#a9b6cc;
+  --brand:#002D74; --brand-soft:#e3e9f4;
+  --mast-bg:#002D74; --mast-ink:#ffffff; --mast-muted:#c9d4ea;
+  --dr:#1f55b0; --cr:#a1461a;
+  --hl:#fff1bf; --hl-ink:#3a2e00;
+  --merch:#8a6100; --merch-soft:#fcefc7; --merch-solid:#FFC629; --merch-on:#111b2e;
+  --year:#4b5670; --year-soft:#e6e9f0;
+  --good:#1b7a46; --good-soft:#dcf1e4; --bad:#b3261e; --bad-soft:#fbe2df;
+  --field:#ffffff;
+  --shadow:0 1px 2px rgba(0,25,70,.07),0 6px 18px rgba(0,25,70,.05);
+  --f-display:"Barlow Semi Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Source Sans 3","Source Sans Pro","Helvetica Neue",Arial,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --b1:0px; --b2:0px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#08101f; --sheet:#0f1a2e; --ink:#e6ebf5; --muted:#9aa7c0; --rule:#22304b; --rule-strong:#3a4b6e;
+  --brand:#8fb1f0; --brand-soft:#16264a;
+  --mast-bg:#001c4a; --mast-ink:#ffffff; --mast-muted:#b6c3df;
+  --dr:#94bbf5; --cr:#eca37c;
+  --hl:rgba(255,198,41,.2); --hl-ink:#ffe7a3;
+  --merch:#FFC629; --merch-soft:#2e2508; --merch-solid:#FFC629; --merch-on:#111b2e;
+  --year:#b3bdd4; --year-soft:#1e2840;
+  --good:#62d396; --good-soft:#123020; --bad:#ff8d82; --bad-soft:#3a1715;
+  --field:#0a1426;
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 6px 18px rgba(0,0,0,.3);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#08101f; --sheet:#0f1a2e; --ink:#e6ebf5; --muted:#9aa7c0; --rule:#22304b; --rule-strong:#3a4b6e;
+  --brand:#8fb1f0; --brand-soft:#16264a;
+  --mast-bg:#001c4a; --mast-ink:#ffffff; --mast-muted:#b6c3df;
+  --dr:#94bbf5; --cr:#eca37c;
+  --hl:rgba(255,198,41,.2); --hl-ink:#ffe7a3;
+  --merch:#FFC629; --merch-soft:#2e2508; --merch-solid:#FFC629; --merch-on:#111b2e;
+  --year:#b3bdd4; --year-soft:#1e2840;
+  --good:#62d396; --good-soft:#123020; --bad:#ff8d82; --bad-soft:#3a1715;
+  --field:#0a1426;
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 6px 18px rgba(0,0,0,.3);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.5;padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--mast-bg)}
+.wrap{max-width:1360px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.12}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* Frozen header */
+.band1{background:var(--mast-bg);color:var(--mast-ink);border-bottom:4px solid var(--gold);z-index:6;padding-top:env(safe-area-inset-top,0px)}
+.band1 .wrap{padding-block:12px 10px;display:grid;gap:8px}
+.b1-row{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+.eyebrow{font-family:var(--f-display);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.band1 h1{font-size:clamp(22px,2.6vw,30px);font-weight:700}
+.biz{flex:1 1 380px;min-width:0;max-width:76ch;font-size:14.5px;color:var(--mast-muted);line-height:1.4;margin:0}
+.biz b{color:var(--mast-ink)}
+.setchip{font-family:var(--f-num);font-size:12.5px;color:var(--mast-muted);border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:5px 10px;white-space:nowrap}
+.setchip b{color:var(--gold);font-weight:600}
+.views{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.opt-label{font-family:var(--f-display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--mast-muted)}
+.vchip{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;border:1px solid rgba(255,255,255,.32);border-radius:999px;padding:2px 11px 2px 8px;cursor:pointer;user-select:none;color:var(--mast-ink)}
+.vchip:has(input:checked){border-color:var(--gold);background:rgba(255,198,41,.16)}
+.vchip input{width:15px;height:15px;margin:0;accent-color:var(--gold)}
+
+.band2{position:sticky;top:0;z-index:5;background:var(--sheet);border-bottom:1px solid var(--rule);box-shadow:var(--shadow)}
+.band2 .wrap{padding-block:8px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:flex-end;justify-content:space-between}
+@media (min-width:760px){
+  .band1{position:sticky;top:0}
+  .band2{top:var(--b1)}
+}
+.status{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font-size:13.5px;color:var(--muted)}
+.status b{color:var(--ink)}
+.score{font-size:13px;font-weight:600;background:var(--hl);color:var(--hl-ink);border-radius:999px;padding:2px 10px}
+.legend-dots{display:flex;gap:10px;font-size:12px}
+.legend-dots i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:0}
+
+.timeline{display:flex;gap:10px;align-items:stretch;overflow-x:auto;padding:4px 2px 2px;min-width:0;flex:1 1 560px}
+.phase{display:flex;flex-direction:column;gap:3px;flex:0 0 auto}
+.phase-label{font-family:var(--f-display);font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;white-space:nowrap}
+.ph-consult .phase-label{color:var(--brand)} .ph-merch .phase-label{color:var(--merch)} .ph-year .phase-label{color:var(--year)}
+.ticks{display:flex;gap:3px}
+.tick{position:relative;flex:0 0 auto;min-width:30px;height:28px;border-radius:4px;border:1px solid var(--rule);background:var(--paper);font-family:var(--f-num);font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);padding:0 3px}
+.ph-consult .tick.done{background:var(--navy);border-color:var(--navy);color:#fff}
+.ph-merch .tick.done{background:var(--merch-solid);border-color:var(--merch-solid);color:var(--merch-on)}
+.ph-year .tick.done{background:var(--year);border-color:var(--year);color:var(--sheet)}
+.tick.cur{outline:2px solid var(--ink);outline-offset:1px}
+.tick.s-first::after,.tick.s-retry::after,.tick.s-shown::after,.tick.s-skipped::after{content:"";position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--sheet)}
+.tick.s-first::after{background:var(--good)}
+.tick.s-retry::after{background:var(--gold)}
+.tick.s-shown::after,.tick.s-skipped::after{background:var(--muted)}
+
+/* Main grid */
+main{padding-block:18px 40px;display:grid;gap:18px}
+.grid-top{display:grid;grid-template-columns:minmax(0,480px) minmax(0,1fr);gap:18px;align-items:start}
+.grid-top.solo{grid-template-columns:minmax(0,1fr)}
+.grid-top.solo .col{grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));align-items:start}
+.grid-mid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start}
+.grid-mid.solo{grid-template-columns:minmax(0,1fr)}
+@media (max-width:1060px){.grid-top,.grid-mid{grid-template-columns:minmax(0,1fr)}}
+.col{display:grid;gap:18px;min-width:0}
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;box-shadow:var(--shadow);min-width:0;overflow:hidden;scroll-margin-top:calc(var(--b1) + var(--b2) + 12px)}
+@media (max-width:759px){.panel{scroll-margin-top:calc(var(--b2) + 12px)}}
+.panel-h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;justify-content:space-between;padding:12px 16px 10px;border-bottom:1px solid var(--rule);border-top:3px solid var(--navy)}
+:root[data-theme="dark"] .panel-h{border-top-color:var(--brand)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .panel-h{border-top-color:var(--brand)}}
+.panel-h h2{font-size:21px;font-weight:700;color:var(--brand)}
+.panel-h .sub{font-size:13.5px;color:var(--muted)}
+.panel-b{padding:14px 16px 16px}
+#pEntry .panel-h{border-top-color:var(--gold)}
+
+.pill{display:inline-block;font-family:var(--f-display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;padding:2px 10px}
+.pill.consult{background:var(--brand-soft);color:var(--brand)}
+.pill.merch{background:var(--merch-soft);color:var(--merch)}
+.pill.year{background:var(--year-soft);color:var(--year)}
+
+/* Entry card */
+.entry-meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13.5px;color:var(--muted)}
+.entry-title{font-size:23px;font-weight:700;margin:10px 0 4px}
+.entry-desc{margin:0 0 12px}
+.calc{font-family:var(--f-num);font-size:13px;background:var(--paper);border-radius:6px;padding:6px 10px;margin:-4px 0 12px;display:inline-block}
+.je{width:100%;border-collapse:collapse;font-size:14.5px}
+.je th{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:left;padding:6px;border-bottom:2px solid var(--rule-strong)}
+.je th.r,.je td.r{text-align:right}
+.je td{padding:7px 6px;border-bottom:1px solid var(--rule)}
+.je td.cr-name{padding-left:30px}
+.je .dr-amt{color:var(--dr)} .je .cr-amt{color:var(--cr)}
+.why{margin-top:12px;background:var(--paper);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:10px 12px;font-size:14.5px}
+.why b{font-family:var(--f-display);font-size:16px}
+.effects{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.eff{font-size:13.5px;font-weight:600;border-radius:6px;padding:4px 9px;border:1px solid var(--rule)}
+.eff .num{font-weight:600}
+.eff.up{background:var(--good-soft);color:var(--good);border-color:transparent}
+.eff.down{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.eff.none{color:var(--muted)}
+.eff.inv{background:var(--merch-soft);color:var(--merch);border-color:transparent}
+.note{font-size:13.5px;color:var(--muted);margin-top:8px}
+.result{border-radius:8px;padding:8px 12px;font-size:14px;font-weight:600;margin-bottom:12px}
+.result.ok{background:var(--good-soft);color:var(--good)}
+.result.no{background:var(--merch-soft);color:var(--merch)}
+
+.rec{width:100%;border-collapse:collapse;font-size:14px}
+.rec th{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:left;padding:6px 4px;border-bottom:2px solid var(--rule-strong)}
+.rec th.r{text-align:right}
+.rec td{padding:6px 4px;vertical-align:top}
+.rec tr.line td{border-top:1px solid var(--rule)}
+.rec tr.fb td{padding-top:0;border-top:0}
+.rec select,.rec input{width:100%;background:var(--field);border:1px solid var(--rule-strong);border-radius:6px;padding:6px 7px;font-size:14px;min-height:36px}
+.rec input{font-family:var(--f-num);text-align:right}
+.rec td.amt{width:100px}
+.rec .ok select,.rec .ok input.filled{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+.rec .bad-a select{border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+.rec .bad-s input.filled,.rec .bad-n input.filled{border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+.fbmsg{font-size:13.5px;font-weight:600;display:flex;gap:6px}
+.fbmsg.ok{color:var(--good)} .fbmsg.no{color:var(--bad)}
+.rec tfoot td{font-family:var(--f-num);font-size:13px;text-align:right;color:var(--muted);border-top:2px solid var(--rule-strong);padding-top:6px}
+.overall{margin-top:10px;font-size:14px;border-radius:8px;padding:9px 12px}
+.overall.ok{background:var(--good-soft);color:var(--good)}
+.overall.no{background:var(--bad-soft);color:var(--bad)}
+.overall ul{margin:4px 0 0;padding-left:18px}
+.hintbox{margin-top:10px;font-size:13.5px;background:var(--merch-soft);color:var(--merch);border-radius:8px;padding:8px 12px}
+.hintbox .num{color:var(--ink)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--rule);align-items:center;justify-content:space-between}
+.actions .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.actions .ask{font-size:13.5px;font-weight:600}
+.btn{border:1px solid var(--rule-strong);background:var(--sheet);border-radius:6px;padding:7px 12px;font-size:14.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:36px}
+.btn:hover{background:var(--brand-soft)}
+.btn:disabled{opacity:.4;cursor:default;background:var(--sheet)}
+.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.primary:hover{background:#0a3d8f}
+.btn.small{font-size:13.5px;padding:5px 10px;min-height:32px}
+
+/* Equation */
+.eq{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:6px;align-items:start;text-align:center}
+.eq .op{font-family:var(--f-display);font-size:30px;color:var(--muted);padding-top:14px}
+.eq .term .k{font-family:var(--f-display);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.eq .term .v{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:clamp(16px,2.1vw,21px);font-weight:600;margin-top:2px;border-radius:4px}
+.eq .term .d{font-family:var(--f-num);font-size:12.5px;font-weight:600;min-height:18px}
+.d.up{color:var(--good)} .d.down{color:var(--bad)} .d.zero{color:var(--muted)}
+.bars{margin-top:14px;display:grid;gap:6px}
+.barrow{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:center;font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.05em}
+.track{height:14px;background:var(--paper);border-radius:3px;overflow:hidden;display:flex}
+.seg-a{background:var(--brand)} .seg-l{background:var(--cr)} .seg-e{background:var(--gold)}
+.track > div{transition:width .45s ease}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted);margin-top:4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.eqparts{margin-top:14px;border-top:1px dashed var(--rule-strong);padding-top:10px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;font-size:13px}
+.eqparts .part{display:inline-flex;flex-direction:column;align-items:center;padding:2px 4px;border-radius:5px}
+.eqparts .part .k{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.eqparts .part .v{font-family:var(--f-num);font-weight:600}
+.eqparts .part.chg{background:var(--hl);color:var(--hl-ink)}
+.eqparts .part.chg .k{color:inherit}
+.eqparts .o{color:var(--muted);font-family:var(--f-display);font-size:18px}
+.balanced{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--good)}
+.balanced.no{color:var(--bad)}
+
+/* T-accounts */
+.t-tools{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.chipbox{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;border:1px solid var(--rule);border-radius:999px;padding:3px 11px 3px 8px;cursor:pointer;user-select:none}
+.chipbox:has(input:checked){border-color:var(--rule-strong);background:var(--brand-soft)}
+.chipbox input{width:16px;height:16px;margin:0;accent-color:var(--navy)}
+.t-group{display:grid;gap:8px}
+.t-group + .t-group{margin-top:16px}
+.t-group h3{font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.t-group h3 span{font-family:var(--f-body);font-weight:500;text-transform:none;letter-spacing:0;font-size:12.5px}
+.t-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px}
+.tacct{border:1px solid var(--rule);border-radius:6px;padding:8px 8px 6px;background:var(--sheet);transition:opacity .2s}
+.tacct.idle{opacity:.45}
+.tacct.touch{border-color:var(--gold);box-shadow:0 0 0 2px var(--hl)}
+.t-head{display:flex;gap:6px;align-items:baseline;justify-content:center;text-align:center;font-size:13.5px;font-weight:700;line-height:1.25;min-height:34px;padding-bottom:4px;border-bottom:2px solid var(--ink)}
+.t-head .no{font-family:var(--f-num);font-size:11px;color:var(--muted);font-weight:500}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.t-side{padding:4px;display:flex;flex-direction:column;gap:1px}
+.t-side.l{border-right:2px solid var(--ink)}
+.t-side .lab{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.t-side.r .lab{text-align:right}
+.t-row{display:flex;justify-content:space-between;gap:4px;font-family:var(--f-num);font-size:12px;font-variant-numeric:tabular-nums;border-radius:3px;padding:0 3px}
+.t-row .ref{color:var(--muted);font-size:10.5px}
+.t-side.l .amt{color:var(--dr)} .t-side.r .amt{color:var(--cr)}
+.t-row.cur{background:var(--hl);color:var(--hl-ink)}
+.t-row.cur .ref,.t-row.cur .amt{color:inherit}
+.t-row.balrow{border-top:1px solid var(--ink);margin-top:3px;padding-top:2px;font-weight:600}
+.t-row.balrow .amt{color:var(--ink)}
+.t-zero{font-size:11px;color:var(--muted);text-align:center;margin-top:4px;font-style:italic}
+.t-units{font-size:11px;color:var(--merch);text-align:center;margin-top:4px;font-weight:600}
+
+/* Tables */
+.tabs{display:flex;gap:4px}
+.tab{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:5px 11px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.scroll{overflow-x:auto}
+table.tb{width:100%;border-collapse:collapse;font-size:14px}
+.tb caption,.st caption{caption-side:top;text-align:center;padding-bottom:10px}
+.cap-firm{font-family:var(--f-display);font-weight:700;font-size:17px;color:var(--brand)}
+.cap-name{font-family:var(--f-display);font-weight:600;font-size:16px}
+.cap-date{font-size:12.5px;color:var(--muted)}
+.tb th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:6px 8px;border-bottom:2px solid var(--rule-strong);text-align:left;white-space:nowrap}
+.tb td{padding:5px 8px;border-bottom:1px solid var(--rule)}
+.tb .r{text-align:right}
+.tb td.r{font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tb td.no{font-family:var(--f-num);color:var(--muted);font-size:12px}
+.tb tr.chg td{background:var(--hl);color:var(--hl-ink)}
+.tb tr.chg td.no{color:inherit}
+.tb tfoot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:3px double var(--ink)}
+.tb-status{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:10px;font-size:13.5px;color:var(--muted)}
+.ws th.grp{text-align:center;border-bottom:1px solid var(--rule)}
+.ws th.grp.u{color:var(--brand)} .ws th.grp.a{color:var(--year)}
+.ws td.r,.ws th.r{min-width:72px}
+.ws td.gap,.ws th.gap{border-left:1px solid var(--rule-strong)}
+.ws td.dim{color:var(--muted);opacity:.5;text-align:center}
+.empty{color:var(--muted);font-size:14px;padding:18px 4px;text-align:center}
+
+.stmts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:22px 26px}
+.stmt-basis{font-size:13.5px;border-radius:8px;padding:9px 12px;margin-bottom:16px}
+.stmt-basis.warn{background:var(--merch-soft);color:var(--merch)}
+.stmt-basis.ok{background:var(--good-soft);color:var(--good)}
+table.st{width:100%;border-collapse:collapse;font-size:14px}
+.st caption{border-bottom:2px solid var(--ink);padding-bottom:8px}
+.st td{padding:3px 4px;vertical-align:bottom}
+.st td.n{text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap;width:84px}
+.st tr.h td{font-weight:700;padding-top:9px}
+.st td.i1{padding-left:16px} .st td.i2{padding-left:30px}
+.st td.ul{border-bottom:1px solid var(--ink)}
+.st td.dul{border-bottom:3px double var(--ink);font-weight:700}
+.st tr.tot td:first-child{font-weight:700}
+.st tr.chg td{background:var(--hl);color:var(--hl-ink)}
+.st-check{margin-top:8px}
+.gp{margin-top:10px;font-size:13.5px;background:var(--paper);border-radius:6px;padding:7px 10px}
+.gp .num{font-weight:600}
+
+/* Journal */
+.jitem{display:grid;grid-template-columns:64px 76px minmax(0,1fr);gap:10px;padding:9px 6px;border-bottom:1px solid var(--rule)}
+.jitem.cur{background:var(--hl);color:var(--hl-ink)}
+.jitem .ref{font-family:var(--f-num);font-weight:600;font-size:13px}
+.jitem .dt{font-size:13px;color:var(--muted)}
+.jitem.cur .dt{color:inherit}
+.jitem .lines{font-family:var(--f-num);font-size:12.5px;display:grid;gap:1px;min-width:0}
+.jitem .lines .t{font-family:var(--f-body);font-size:14px;font-weight:600;margin-bottom:3px}
+.jl{display:flex;justify-content:space-between;gap:12px}
+.jl.c{padding-left:22px}
+.jl .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jhead{font-family:var(--f-display);font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;padding:12px 6px 4px}
+.jhead.consult{color:var(--brand)} .jhead.merch{color:var(--merch)} .jhead.year{color:var(--year)}
+@media (max-width:520px){.jitem{grid-template-columns:52px minmax(0,1fr)}.jitem .dt{display:none}.eq .op{font-size:22px}.rec td.amt{width:80px}.status{align-items:flex-start}}
+
+@keyframes flash{0%{background:var(--hl)}100%{background:transparent}}
+.flash{animation:flash 1.2s ease-out}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}.track > div{transition:none}}
+footer{font-size:12.5px;color:var(--muted);padding-block:0 30px}
+</style>
+</head>
+<body>
+
+<header class="band1" id="band1">
+  <div class="wrap">
+    <div class="b1-row">
+      <div>
+        <div class="eyebrow">University of New Haven · Financial Accounting · Chapters 6–7</div>
+        <h1>Merchandising &amp; Inventory Lab</h1>
+      </div>
+      <p class="biz" id="biz"></p>
+      <div class="setchip" title="Each problem set uses different numbers and a different order of transactions">Problem set <b id="setNo">—</b></div>
+    </div>
+    <div class="views" id="views">
+      <span class="opt-label">Show</span>
+      <label class="vchip"><input type="checkbox" id="v-eq" checked> Equation</label>
+      <label class="vchip"><input type="checkbox" id="v-t" checked> T-accounts</label>
+      <label class="vchip"><input type="checkbox" id="v-tb" checked> Trial balance</label>
+      <label class="vchip"><input type="checkbox" id="v-fs" checked> Statements</label>
+      <label class="vchip"><input type="checkbox" id="v-j" checked> Journal</label>
+    </div>
+  </div>
+</header>
+<div class="band2" id="band2">
+  <div class="wrap">
+    <div class="timeline" id="timeline" aria-label="Entries in the year"></div>
+    <div class="status">
+      <div id="where"></div>
+      <span class="score" id="score" hidden></span>
+      <div class="legend-dots"><span><i style="background:var(--good)"></i>First try</span><span><i style="background:var(--gold)"></i>Retried</span><span><i style="background:var(--muted)"></i>Answer shown</span></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="grid-top" id="gridTop">
+    <div class="col">
+      <section class="panel" id="pEntry" aria-labelledby="entryH">
+        <div class="panel-h"><h2 id="entryH">Journal entry</h2><span class="sub" id="entrySub"></span></div>
+        <div class="panel-b" id="entry"></div>
+      </section>
+      <section class="panel" id="pEq" aria-labelledby="eqH">
+        <div class="panel-h"><h2 id="eqH">Accounting equation</h2><span id="eqBal"></span></div>
+        <div class="panel-b" id="equation"></div>
+      </section>
+    </div>
+    <section class="panel" id="pT" aria-labelledby="tH">
+      <div class="panel-h">
+        <h2 id="tH">T-accounts (general ledger)</h2>
+        <div class="t-tools">
+          <span class="sub">Numbers beside amounts are entry references.</span>
+          <label class="chipbox"><input type="checkbox" id="hideIdle"> Only accounts with activity</label>
+        </div>
+      </div>
+      <div class="panel-b" id="taccts"></div>
+    </section>
+  </div>
+
+  <div class="grid-mid" id="gridMid">
+    <section class="panel" id="pTB" aria-labelledby="tbH">
+      <div class="panel-h">
+        <h2 id="tbH">Trial balance</h2>
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" id="tabCur" aria-selected="true">Current</button>
+          <button class="tab" role="tab" id="tabWs" aria-selected="false">Worksheet view</button>
+        </div>
+      </div>
+      <div class="panel-b" id="tb"></div>
+    </section>
+    <section class="panel" id="pFS" aria-labelledby="fsH">
+      <div class="panel-h"><h2 id="fsH">Financial statements</h2><span class="sub">Multi-step income statement → retained earnings → balance sheet</span></div>
+      <div class="panel-b" id="fs"></div>
+    </section>
+  </div>
+
+  <section class="panel" id="pJ" aria-labelledby="jH">
+    <div class="panel-h"><h2 id="jH">General journal</h2><span class="sub">Every entry you have posted, in order.</span></div>
+    <div class="panel-b"><div id="journal"></div></div>
+  </section>
+</main>
+<footer class="wrap">Problem Solvers, Inc. and all figures are illustrative. Inventory is recorded with a perpetual system. Each problem set changes the amounts and the order of the year's transactions.</footer>
+
+<script>
+(function(){
+"use strict";
+const YEAR=new Date().getFullYear();
+const MON=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+// ---------- Chart of accounts (numbers from the course chart of accounts) ----------
+const ACCTS = [
+  {id:"cash", no:1000, name:"Cash", type:"asset", normal:"D"},
+  {id:"ar", no:1100, name:"Accounts Receivable", type:"asset", normal:"D"},
+  {id:"prent", no:1200, name:"Prepaid Rent", type:"asset", normal:"D"},
+  {id:"ppi", no:1210, name:"Prepaid Insurance", type:"asset", normal:"D"},
+  {id:"sup", no:1300, name:"Supplies", type:"asset", normal:"D"},
+  {id:"inv", no:1400, name:"Inventory", type:"asset", normal:"D"},
+  {id:"equip", no:1500, name:"Equipment", type:"asset", normal:"D"},
+  {id:"ad", no:1599, name:"Accumulated Depreciation", type:"contra", normal:"C"},
+  {id:"ap", no:2000, name:"Accounts Payable", type:"liab", normal:"C"},
+  {id:"ur", no:2010, name:"Deferred Revenue", type:"liab", normal:"C"},
+  {id:"wp", no:2020, name:"Wages Payable", type:"liab", normal:"C"},
+  {id:"cs", no:3000, name:"Common Stock", type:"equity", normal:"C"},
+  {id:"re", no:3100, name:"Retained Earnings", type:"equity", normal:"C"},
+  {id:"div", no:3200, name:"Dividends", type:"div", normal:"D"},
+  {id:"svc", no:4000, name:"Service Revenue", type:"rev", normal:"C"},
+  {id:"sales", no:4100, name:"Sales Revenue", type:"rev", normal:"C"},
+  {id:"sra", no:4110, name:"Sales Returns and Allowances", type:"contrarev", normal:"D"},
+  {id:"cogs", no:5000, name:"Cost of Goods Sold", type:"exp", normal:"D"},
+  {id:"rent", no:6000, name:"Rent Expense", type:"exp", normal:"D"},
+  {id:"supx", no:6030, name:"Supplies Expense", type:"exp", normal:"D"},
+  {id:"wage", no:6040, name:"Wages Expense", type:"exp", normal:"D"},
+  {id:"adv", no:6070, name:"Advertising Expense", type:"exp", normal:"D"},
+  {id:"depx", no:6090, name:"Depreciation Expense", type:"exp", normal:"D"}
+];
+const A = Object.fromEntries(ACCTS.map(a=>[a.id,a]));
+const GROUPS = [
+  {key:"Assets", note:"normal debit balance", types:["asset","contra"]},
+  {key:"Liabilities", note:"normal credit balance", types:["liab"]},
+  {key:"Stockholders' equity", note:"common stock, retained earnings, dividends", types:["equity","div"]},
+  {key:"Revenues", note:"credit · Sales Returns and Allowances is a contra-revenue with a debit balance", types:["rev","contrarev"]},
+  {key:"Expenses", note:"debit · Cost of Goods Sold plus operating expenses", types:["exp"]}
+];
+const OPEX=["rent","wage","supx","adv","depx"];
+
+// ---------- helpers ----------
+function fmt(n){return Math.abs(n).toLocaleString("en-US");}
+function d$(n){return "$"+fmt(n);}
+function money(n,dollar){const s=fmt(n);return (n<0?"(":"")+(dollar?"$":"")+s+(n<0?")":"");}
+function sgn(n){return n>0?"+"+fmt(n):n<0?"−"+fmt(n):"0";}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function parseAmt(s){s=String(s||"").replace(/[$,\s]/g,"");if(s==="")return null;const n=Number(s);return isFinite(n)?n:NaN;}
+const $=id=>document.getElementById(id);
+const PHASE_NAME={consult:"Transaction",merch:"Transaction",year:"Adjusting entry"};
+const PHASE_SHORT={consult:"Consulting · Jan–May",merch:"Selling guides · Jun–Dec",year:"Year-end adjustments"};
+const PHASES=["consult","merch","year"];
+const VIEWS=["eq","t","tb","fs","j"];
+const KEY="invlab1";
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function randomSeed(){return 10000+Math.floor(Math.random()*90000);}
+const DAY0=Date.UTC(YEAR,0,0);
+function doy(m,d){return Math.round((Date.UTC(YEAR,m,d)-DAY0)/864e5);}
+function fromDoy(n){const t=new Date(DAY0+n*864e5);return {m:t.getUTCMonth(),d:t.getUTCDate()};}
+
+$("biz").innerHTML='<b>Problem Solvers, Inc.</b> opened on January 1, '+YEAR+' as a business consulting firm. In June it began buying “how-to” business guides from a printer and reselling them to clients. Record its first year using a <b>perpetual</b> inventory system.';
+
+// ---------- Problem generator ----------
+// Same questions every time; the seed changes the amounts and the order (always in a logical business order).
+const CDEPS={stock:[],equip:["stock"],sup:["stock"],apSup:["sup"],rent:["stock"],svcCash:["stock"],svcAR:["stock"],colSvc:["svcAR"],wages:["stock"]};
+const MDEPS={p1:[],frt:["p1"],ret:["frt"],alw:["ret"],pay:["alw"],s1:["alw"],sr:["s1"],sa:["s1"],col:["sr","sa"],p2:["alw"],s2:["p2"],div:["s1"]};
+
+function gen(seed){
+  const r=mulberry32(seed);
+  const R=(a,b,s)=>{s=s||1;return a+s*Math.floor(r()*(Math.floor((b-a)/s)+1));};
+  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;};
+  const topo=(deps,first)=>{const order=[first],left=new Set(Object.keys(deps).filter(x=>x!==first));
+    while(left.size){const av=[...left].filter(id=>deps[id].every(d=>order.includes(d)));const pick=av[Math.floor(r()*av.length)];order.push(pick);left.delete(pick);}return order;};
+  const days=(n,lo,hi)=>{const s=new Set();while(s.size<n)s.add(R(lo,hi));return [...s].sort((a,b)=>a-b);};
+
+  for(let attempt=0;attempt<3000;attempt++){
+    const co=topo(CDEPS,"stock"); if(co.indexOf("equip")>4)continue;
+    const mo=topo(MDEPS,"p1");
+    // the purchase, freight, return and allowance happen close together in early June; the rest spread through December
+    const cd=days(co.length,doy(0,3),doy(4,28));
+    const m0=R(doy(5,1),doy(5,8)), m1=m0+R(1,3), m2=m1+R(2,4), m3=m2+R(3,6);
+    const md=[m0,m1,m2,m3].concat(days(mo.length-4,m3+5,doy(11,18)));
+    const D={}; co.forEach((id,i)=>D[id]=fromDoy(cd[i])); mo.forEach((id,i)=>D[id]=fromDoy(md[i]));
+    const dt=id=>MS[D[id].m]+" "+D[id].d;
+    const mname=id=>MON[D[id].m];
+
+    // consulting amounts
+    const p={
+      stock:R(40000,80000,5000), cost:60*R(100,250),
+      supBuy:R(1200,3000,100), rent:R(1000,2500,100),
+      svcCash:R(6000,15000,500), svcAR:R(3000,9000,500), wages:R(2500,6000,250),
+      div:R(1000,3000,250)
+    };
+    p.apSup=R(400,p.supBuy-400,100); p.supOn=R(200,p.supBuy-600,50); p.colSvc=R(1000,p.svcAR-1000,500);
+    // merchandising amounts (perpetual; the allowance is set so every guide on hand costs a whole-dollar u)
+    const c=R(8,14), f=R(2,3), u=c+f-1;
+    const Q1=R(400,700,50), RT=R(20,60,10), K=Q1-RT;
+    const F=Q1*f, AL=RT*f+K, pay=Q1*c-RT*c-AL;
+    const price=u+R(8,16);
+    const S1=R(120,K-120,10), SR=R(5,20,5), SA=R(50,200,10);
+    const col=S1*price-SR*price-SA;
+    const Q2=R(200,400,50), S2=R(80,250,10);
+    // units on hand through the year (must never go negative)
+    const du={p1:Q1,ret:-RT,s1:-S1,sr:SR,p2:Q2,s2:-S2};
+    let units=0,okU=true; mo.forEach(id=>{units+=du[id]||0;if(units<0)okU=false;}); if(!okU||units<60)continue;
+    const E=units, dLcm=R(1,3), mkt=u-dLcm, wd=E*dLcm;
+    // cash never goes negative
+    const flow={stock:p.stock,equip:-p.cost,apSup:-p.apSup,rent:-p.rent,svcCash:p.svcCash,colSvc:p.colSvc,wages:-p.wages,
+      frt:-F,pay:-pay,col:col,p2:-Q2*u,s2:S2*price,div:-p.div};
+    let cash=0,okC=true; co.concat(mo).forEach(id=>{cash+=flow[id]||0;if(cash<0)okC=false;}); if(!okC)continue;
+    // depreciation: straight-line, 5 years, no residual value, starting the month after purchase
+    const nDep=11-D.equip.m, depMo=p.cost/60, dep=depMo*nDep, used=p.supBuy-p.supOn;
+    const netSales=(S1+S2-SR)*price-SA, cogs=(S1+S2-SR)*u+wd;
+    const ni=p.svcCash+p.svcAR+netSales-cogs-p.rent-p.wages-used-dep;
+    if(ni<p.div+1000)continue;
+
+    const T={
+      stock:{title:"Issue common stock for cash",desc:"Investors purchased "+d$(p.stock)+" of common stock for cash to start the company.",
+        lines:[{a:"cash",dr:p.stock},{a:"cs",cr:p.stock}],
+        why:"Cash is an asset, so it increases with a debit. Issuing stock increases contributed capital, part of stockholders' equity, which increases with a credit.",
+        miss:{svc:"Issuing stock is an investment by owners, not revenue earned from clients.",sales:"Issuing stock is an investment by owners, not revenue from selling goods.",re:"Owner investments go to Common Stock. Retained Earnings holds profits kept in the business."}},
+      equip:{title:"Buy office equipment for cash",desc:"Bought computers and office equipment for "+d$(p.cost)+" cash.",
+        lines:[{a:"equip",dr:p.cost},{a:"cash",cr:p.cost}],
+        why:"One asset (Equipment) is exchanged for another (Cash), so total assets do not change. Depreciation is recorded at year-end as an adjusting entry.",
+        miss:{depx:"Depreciation is recorded at year-end. The purchase records the asset at its cost.",ap:"The equipment was paid for in cash, so nothing is owed.",inv:"Inventory is only for goods held to sell to customers. Equipment the company uses is a long-lived asset.",ad:"Accumulated Depreciation is used only when depreciation is recorded at year-end."}},
+      sup:{title:"Buy office supplies on account",desc:"Bought office supplies on account for "+d$(p.supBuy)+", due in 30 days.",
+        lines:[{a:"sup",dr:p.supBuy},{a:"ap",cr:p.supBuy}],
+        why:"Supplies are an asset until they are used. Buying on account creates a liability, so both sides of the equation increase.",
+        miss:{supx:"Supplies are an asset until they are used. The amount used is expensed at year-end.",cash:"The supplies were bought on account, so no cash was paid yet.",inv:"Inventory is only for goods the company will sell to customers. Office supplies are used to run the business."}},
+      apSup:{title:"Pay part of the supplies bill",desc:"Paid "+d$(p.apSup)+" of the amount owed for the supplies bought in "+mname("sup")+".",
+        lines:[{a:"ap",dr:p.apSup},{a:"cash",cr:p.apSup}],
+        why:"Paying a liability reduces both an asset and a liability. No expense is recorded, because the supplies were recorded when they were bought.",
+        miss:{sup:"The supplies were recorded when they were bought. This payment only settles the amount owed.",supx:"Paying a bill is not an expense. This payment only settles the amount owed."}},
+      rent:{title:"Pay office rent",desc:"Paid "+d$(p.rent)+" of office rent for "+mname("rent")+".",
+        lines:[{a:"rent",dr:p.rent},{a:"cash",cr:p.rent}],
+        why:"The rent covers the current month only, so it is an expense right away rather than a prepaid asset.",
+        miss:{prent:"Prepaid Rent is for rent paid in advance for future months. This payment covers the current month."}},
+      svcCash:{title:"Provide consulting services for cash",desc:"Completed consulting projects and collected "+d$(p.svcCash)+" in cash from clients.",
+        lines:[{a:"cash",dr:p.svcCash},{a:"svc",cr:p.svcCash}],
+        why:"Revenue is recognized when the service is performed. Revenue increases stockholders' equity, so it is recorded with a credit.",
+        miss:{sales:"Sales Revenue is for selling goods. Consulting work earns Service Revenue.",ur:"The work is complete, so the revenue is earned. Deferred Revenue is only for cash received before the work is done.",ar:"The clients paid cash, so there is nothing to collect."}},
+      svcAR:{title:"Provide consulting services on account",desc:"Completed a consulting project and billed the client "+d$(p.svcAR)+", due in 30 days.",
+        lines:[{a:"ar",dr:p.svcAR},{a:"svc",cr:p.svcAR}],
+        why:"The work is done, so the revenue is earned now even though no cash has arrived. The right to collect is an asset (Accounts Receivable).",
+        miss:{sales:"Sales Revenue is for selling goods. Consulting work earns Service Revenue.",cash:"No cash was received. The client was billed and will pay later.",ur:"The work is complete, so this is earned revenue, not deferred revenue."}},
+      colSvc:{title:"Collect from a consulting client",desc:"Collected "+d$(p.colSvc)+" from the consulting client billed in "+mname("svcAR")+".",
+        lines:[{a:"cash",dr:p.colSvc},{a:"ar",cr:p.colSvc}],
+        why:"One asset is exchanged for another. The revenue was recorded when the work was done, so revenue does not change now.",
+        miss:{svc:"Revenue was recorded when the work was done. Collecting cash later does not create new revenue.",ur:"Deferred Revenue is for cash received before the work. This work was already done and billed."}},
+      wages:{title:"Pay consultants' wages",desc:"Paid consultants' wages of "+d$(p.wages)+" for work performed this month.",
+        lines:[{a:"wage",dr:p.wages},{a:"cash",cr:p.wages}],
+        why:"Expenses decrease stockholders' equity, so they are recorded with debits. The wages were paid, so Cash decreases.",
+        miss:{wp:"These wages were paid in cash, so nothing is owed."}},
+
+      p1:{kind:"Inventory · purchase",title:"Buy how-to guides on account",
+        desc:"Problem Solvers decided to sell its own line of “how-to” business guides. It bought "+fmt(Q1)+" guides from its printer at "+d$(c)+" each on account.",
+        calc:fmt(Q1)+" guides × "+d$(c)+" = "+d$(Q1*c),
+        lines:[{a:"inv",dr:Q1*c},{a:"ap",cr:Q1*c}],units:Q1,
+        why:"Under a perpetual system, goods bought for resale are recorded directly in Inventory, an asset. Buying on account creates Accounts Payable.",
+        miss:{cogs:"Cost of Goods Sold is recorded only when guides are sold. Until then, their cost stays in Inventory.",sup:"Supplies are items used to run the office. Guides bought to resell to customers are Inventory.",cash:"The guides were bought on account, so no cash was paid yet.",sales:"Buying guides does not earn revenue. Revenue is recorded when the guides are sold."}},
+      frt:{kind:"Inventory · freight-in",title:"Pay freight on the guide shipment",
+        desc:"Paid a shipping company "+d$(F)+" cash to deliver the guides bought on "+dt("p1")+". The terms were FOB shipping point, so Problem Solvers pays the shipping.",
+        lines:[{a:"inv",dr:F},{a:"cash",cr:F}],
+        why:"Freight-in is part of the cost of getting the guides ready to sell, so it is added to Inventory. It becomes part of Cost of Goods Sold when the guides are sold.",
+        miss:{cogs:"The guides have not been sold yet. Freight-in stays in Inventory until they are.",ap:"The shipping company was paid in cash, so nothing is owed."},
+        missType:{exp:"Freight-in is not an operating expense. It is part of the cost of the inventory, so it is added to Inventory."}},
+      ret:{kind:"Inventory · purchase return",title:"Return damaged guides to the printer",
+        desc:"Found "+fmt(RT)+" guides with missing pages and returned them to the printer. The printer reduced the amount owed by their "+d$(c)+" invoice price each.",
+        calc:fmt(RT)+" guides × "+d$(c)+" = "+d$(RT*c),
+        lines:[{a:"ap",dr:RT*c},{a:"inv",cr:RT*c}],units:-RT,
+        why:"A return cancels part of the purchase. Problem Solvers owes less (Accounts Payable decreases) and has fewer guides (Inventory decreases). A perpetual system has no separate purchase returns account.",
+        miss:{sra:"Sales Returns and Allowances is for customers returning goods to Problem Solvers. When Problem Solvers returns goods to its supplier, reduce Inventory.",cash:"The printer reduced the amount owed rather than sending cash.",cogs:"These guides were never sold, so Cost of Goods Sold is not affected. Reduce Inventory instead."}},
+      alw:{kind:"Inventory · purchase allowance",title:"Receive an allowance from the printer",
+        desc:"Some of the "+fmt(K)+" guides kept have scuffed covers. Problem Solvers agreed to keep them, and the printer granted an allowance of "+d$(AL)+" off the amount owed.",
+        lines:[{a:"ap",dr:AL},{a:"inv",cr:AL}],
+        why:"An allowance lowers the price of guides the company keeps. The guides now cost less, so Inventory decreases, and so does the amount owed. After the freight and this allowance, each of the "+fmt(K)+" guides on hand cost "+d$(u)+".",
+        miss:{sra:"Sales Returns and Allowances is for allowances Problem Solvers gives its customers. An allowance from a supplier reduces Inventory.",cash:"The printer reduced the amount owed rather than sending cash.",cogs:"These guides have not been sold, so Cost of Goods Sold is not affected. Reduce Inventory instead.",sales:"An allowance from a supplier lowers the cost of inventory. It is not revenue."}},
+      pay:{kind:"Inventory · payment",title:"Pay the printer in full",
+        desc:"Paid the printer the full balance owed for the guides bought on "+dt("p1")+", after the return and the allowance.",
+        calc:d$(Q1*c)+" purchase − "+d$(RT*c)+" return − "+d$(AL)+" allowance = "+d$(pay),
+        lines:[{a:"ap",dr:pay},{a:"cash",cr:pay}],
+        why:"Paying the printer settles the liability. Inventory does not change, because the guides were recorded when they were bought and the return and allowance were already recorded.",
+        miss:{inv:"The guides were already recorded in Inventory. Paying the bill only settles the amount owed.",cogs:"Paying for guides is not an expense. Their cost moves to Cost of Goods Sold only when they are sold."}},
+      s1:[{kind:"Inventory · sale, entry 1 of 2",pair:"a",title:"Sell guides on account: record the sale",
+        desc:"Sold "+fmt(S1)+" guides to a corporate training client at "+d$(price)+" each on account, due in 30 days. The guides cost "+d$(u)+" each. Record the selling price first.",
+        calc:fmt(S1)+" guides × "+d$(price)+" = "+d$(S1*price),
+        lines:[{a:"ar",dr:S1*price},{a:"sales",cr:S1*price}],
+        why:"Under a perpetual system every sale needs two entries. This first entry records revenue at the selling price. The second entry records the cost of the guides sold.",
+        miss:{svc:"Service Revenue is for consulting work. Selling guides earns Sales Revenue.",cash:"The client will pay later, so Accounts Receivable increases.",cogs:"Record the selling price first. The cost of the guides is recorded in the second entry.",inv:"Record the selling price first. Inventory is reduced in the second entry, at cost."},
+        amtTip:"Use the selling price ("+d$(price)+" each) for this entry."},
+       {kind:"Inventory · sale, entry 2 of 2",pair:"b",gp:[S1*price,S1*u],title:"Sell guides on account: record the cost",
+        desc:"Record the cost of the "+fmt(S1)+" guides sold today. Each guide cost "+d$(u)+".",
+        calc:fmt(S1)+" guides × "+d$(u)+" = "+d$(S1*u),
+        lines:[{a:"cogs",dr:S1*u},{a:"inv",cr:S1*u}],units:-S1,
+        why:"The guides have left the business, so their cost moves out of Inventory (an asset) and into Cost of Goods Sold (an expense). Gross profit on this sale is "+d$(S1*price)+" − "+d$(S1*u)+" = "+d$(S1*(price-u))+".",
+        miss:{sales:"The sale itself was recorded in the first entry. This entry records only the cost of the guides.",ar:"The receivable was recorded in the first entry. This entry records only the cost of the guides."},
+        amtTip:"Use the guides' cost ("+d$(u)+" each), not the selling price."}],
+      sr:[{kind:"Inventory · sales return, entry 1 of 2",pair:"a",title:"Customer returns guides: reduce the sale",
+        desc:"The client from the "+dt("s1")+" sale returned "+fmt(SR)+" guides that were the wrong title. They are in perfect condition and go back on the shelf. Problem Solvers reduced the client's balance by the "+d$(price)+" selling price of each guide.",
+        calc:fmt(SR)+" guides × "+d$(price)+" = "+d$(SR*price),
+        lines:[{a:"sra",dr:SR*price},{a:"ar",cr:SR*price}],
+        why:"Returns reduce sales, but they are recorded in Sales Returns and Allowances, a contra-revenue account, so managers can see how much was returned. The client owes less, so Accounts Receivable decreases.",
+        miss:{sales:"Debiting Sales Revenue would hide the return. Use the contra-revenue account Sales Returns and Allowances.",cash:"The client had not paid yet, so its balance is reduced instead of refunding cash.",inv:"Record the selling-price side first. The guides go back into Inventory in the second entry.",cogs:"Record the selling-price side first. Cost of Goods Sold is adjusted in the second entry."},
+        amtTip:"Use the selling price ("+d$(price)+" each) for this entry."},
+       {kind:"Inventory · sales return, entry 2 of 2",pair:"b",title:"Customer returns guides: put them back in inventory",
+        desc:"Record the cost of the "+fmt(SR)+" returned guides, which are back in stock. Each guide cost "+d$(u)+".",
+        calc:fmt(SR)+" guides × "+d$(u)+" = "+d$(SR*u),
+        lines:[{a:"inv",dr:SR*u},{a:"cogs",cr:SR*u}],units:SR,
+        why:"The guides are back on the shelf and can be sold again, so Inventory increases and Cost of Goods Sold decreases by their cost.",
+        miss:{sra:"The return was recorded in the first entry. This entry moves the guides' cost back into Inventory.",ar:"The client's balance was reduced in the first entry. This entry records only the cost of the guides."},
+        amtTip:"Use the guides' cost ("+d$(u)+" each), not the selling price."}],
+      sa:{kind:"Inventory · sales allowance",title:"Grant a sales allowance",
+        desc:"The client from the "+dt("s1")+" sale found printing smudges in some guides but agreed to keep them in exchange for a "+d$(SA)+" allowance off its balance.",
+        lines:[{a:"sra",dr:SA},{a:"ar",cr:SA}],
+        why:"An allowance reduces the selling price, so it is recorded in Sales Returns and Allowances. The client keeps the guides, so there is no second entry: Inventory and Cost of Goods Sold do not change.",
+        miss:{inv:"The client kept the guides, so nothing comes back into Inventory. Only the selling price changes.",cogs:"The client kept the guides, so their cost stays in Cost of Goods Sold. Only the selling price changes.",sales:"Debiting Sales Revenue would hide the allowance. Use the contra-revenue account Sales Returns and Allowances.",cash:"The client had not paid yet, so its balance is reduced instead of refunding cash."}},
+      col:{kind:"Inventory · collection",title:"Collect from the guide client",
+        desc:"Collected the full balance owed by the corporate training client for the guides sold on "+dt("s1")+".",
+        calc:d$(S1*price)+" sale − "+d$(SR*price)+" return − "+d$(SA)+" allowance = "+d$(col),
+        lines:[{a:"cash",dr:col},{a:"ar",cr:col}],
+        why:"Collecting a receivable exchanges one asset for another. The sale, return, and allowance were already recorded, so revenue does not change.",
+        miss:{sales:"The sale was recorded when the guides were sold. Collecting cash later does not create new revenue.",sra:"The return and allowance were already recorded. Collecting cash only settles the balance."}},
+      p2:{kind:"Inventory · purchase",title:"Buy more guides for cash",
+        desc:"Bought "+fmt(Q2)+" more guides from the printer at "+d$(u)+" each, paying cash. The terms were FOB destination, so the printer paid the shipping.",
+        calc:fmt(Q2)+" guides × "+d$(u)+" = "+d$(Q2*u),
+        lines:[{a:"inv",dr:Q2*u},{a:"cash",cr:Q2*u}],units:Q2,
+        why:"Guides bought for resale go to Inventory at their cost. Under FOB destination the seller pays the shipping, so there is no freight-in to record.",
+        miss:{cogs:"Cost of Goods Sold is recorded only when guides are sold. Until then, their cost stays in Inventory.",sup:"Guides bought to resell are Inventory, not Supplies.",ap:"The guides were paid for in cash, so nothing is owed."}},
+      s2:[{kind:"Inventory · sale, entry 1 of 2",pair:"a",title:"Sell guides for cash: record the sale",
+        desc:"Sold "+fmt(S2)+" guides at a business workshop for "+d$(price)+" each, cash. The guides cost "+d$(u)+" each. Record the selling price first.",
+        calc:fmt(S2)+" guides × "+d$(price)+" = "+d$(S2*price),
+        lines:[{a:"cash",dr:S2*price},{a:"sales",cr:S2*price}],
+        why:"The first entry records the revenue at the selling price. Customers paid on the spot, so Cash increases.",
+        miss:{svc:"Service Revenue is for consulting work. Selling guides earns Sales Revenue.",ar:"The customers paid cash, so there is nothing to collect.",cogs:"Record the selling price first. The cost of the guides is recorded in the second entry.",inv:"Record the selling price first. Inventory is reduced in the second entry, at cost."},
+        amtTip:"Use the selling price ("+d$(price)+" each) for this entry."},
+       {kind:"Inventory · sale, entry 2 of 2",pair:"b",gp:[S2*price,S2*u],title:"Sell guides for cash: record the cost",
+        desc:"Record the cost of the "+fmt(S2)+" guides sold today. Each guide cost "+d$(u)+".",
+        calc:fmt(S2)+" guides × "+d$(u)+" = "+d$(S2*u),
+        lines:[{a:"cogs",dr:S2*u},{a:"inv",cr:S2*u}],units:-S2,
+        why:"Whether the sale is for cash or on account, the cost side is the same: Inventory decreases and Cost of Goods Sold increases. Gross profit on this sale is "+d$(S2*price)+" − "+d$(S2*u)+" = "+d$(S2*(price-u))+".",
+        miss:{sales:"The sale itself was recorded in the first entry. This entry records only the cost of the guides.",cash:"Cash was recorded in the first entry. This entry records only the cost of the guides."},
+        amtTip:"Use the guides' cost ("+d$(u)+" each), not the selling price."}],
+      div:{title:"Pay a cash dividend",desc:"The board of directors declared and paid a "+d$(p.div)+" cash dividend to stockholders.",
+        lines:[{a:"div",dr:p.div},{a:"cash",cr:p.div}],
+        why:"Dividends distribute earnings to owners. They reduce stockholders' equity, but they are not an expense and never appear on the income statement.",
+        miss:{re:"During the year, dividends are recorded in the Dividends account. That account is closed to Retained Earnings at year-end.",cs:"Dividends do not reduce the stock investors bought. They are recorded in the Dividends account."},
+        missType:{exp:"Dividends are distributions to owners, not expenses. They never appear on the income statement."}}
+    };
+    const steps=[]; let n=0;
+    const add=(phase,id)=>{n++;const v=T[id];
+      if(Array.isArray(v))v.forEach(x=>steps.push(Object.assign({phase,ref:n+x.pair,date:dt(id)},x)));
+      else steps.push(Object.assign({phase,ref:String(n),date:dt(id),kind:v.kind||"Basic transaction"},v));};
+    co.forEach(id=>add("consult",id)); mo.forEach(id=>add("merch",id));
+    const adj=[
+      {kind:"Adjusting · supplies used",title:"Record supplies used",desc:"The Supplies account shows "+d$(p.supBuy)+". A year-end count finds "+d$(p.supOn)+" of supplies still on hand.",
+       calc:d$(p.supBuy)+" − "+d$(p.supOn)+" on hand = "+d$(used)+" used",
+       lines:[{a:"supx",dr:used},{a:"sup",cr:used}],
+       why:"Only "+d$(p.supOn)+" of supplies is left, so "+d$(used)+" was used. That amount moves from the asset to Supplies Expense.",
+       miss:{ap:"Using supplies does not change what is owed to the supplier.",inv:"Office supplies are not inventory. Reduce the Supplies account.",cogs:"Office supplies are used to run the business, so they become Supplies Expense, not Cost of Goods Sold."}},
+      {kind:"Adjusting · depreciation",title:"Record depreciation on equipment",
+       desc:"The equipment bought on "+dt("equip")+" for "+d$(p.cost)+" is depreciated straight-line over 5 years with no residual value. Record depreciation for the "+nDep+" months from "+MON[D.equip.m+1]+" through December.",
+       calc:d$(p.cost)+" ÷ 5 years ÷ 12 = "+d$(depMo)+" per month × "+nDep+" months = "+d$(dep),
+       lines:[{a:"depx",dr:dep},{a:"ad",cr:dep}],
+       why:"Depreciation spreads the cost of equipment over its useful life. The credit goes to Accumulated Depreciation, a contra-asset, so the Equipment account keeps its original cost.",
+       miss:{equip:"Credit Accumulated Depreciation, not Equipment. Equipment stays at its original cost."}},
+      {kind:"Adjusting · lower of cost or market",title:"Write inventory down to market",
+       desc:"A year-end count shows "+fmt(E)+" guides on hand, recorded at a cost of "+d$(u)+" each. A revised edition is coming out, so the guides' market value (net realizable value: expected selling price minus costs to sell) has dropped to "+d$(mkt)+" each.",
+       calc:"Cost: "+fmt(E)+" guides × "+d$(u)+" = "+d$(E*u)+" · Market: "+fmt(E)+" guides × "+d$(mkt)+" = "+d$(E*mkt)+" · Write-down: "+d$(E*u)+" − "+d$(E*mkt)+" = "+d$(wd),
+       lines:[{a:"cogs",dr:wd},{a:"inv",cr:wd}],
+       why:"Inventory is reported at the lower of its cost or market. Market is "+d$(wd)+" below cost, so Inventory is written down to "+d$(E*mkt)+" and the write-down is added to Cost of Goods Sold. If market had been above cost, no entry would be needed.",
+       miss:{sra:"The write-down is a cost of the inventory, not a return or allowance given to a customer.",sales:"The write-down is a cost of the inventory, not a reduction of sales."},
+       missType:{exp:"Inventory write-downs are added to Cost of Goods Sold in this course."},
+       amtTip:"Record only the difference between total cost and total market value."}
+    ];
+    shuffle(adj).forEach((s,i)=>steps.push(Object.assign({phase:"year",ref:"A"+(i+1),date:"Dec 31"},s)));
+    return steps;
+  }
+  throw new Error("Could not generate a problem set");
+}
+
+// ---------- Ledger engine ----------
+function emptyBook(){const b={};ACCTS.forEach(a=>b[a.id]={dr:[],cr:[],d:0,c:0});return b;}
+function postStep(book, step, si){
+  step.lines.forEach(l=>{const t=book[l.a];
+    if(l.dr){t.dr.push({ref:step.ref,amt:l.dr,si});t.d+=l.dr;}
+    else {t.cr.push({ref:step.ref,amt:l.cr,si});t.c+=l.cr;}});
+}
+function nbal(b,id){const t=b[id];return A[id].normal==="D"?t.d-t.c:t.c-t.d;}
+function eq(b){
+  let As=0,L=0,E=0;
+  ACCTS.forEach(a=>{const s=b[a.id].d-b[a.id].c;
+    if(a.type==="asset"||a.type==="contra")As+=s; else if(a.type==="liab")L-=s; else E-=s;});
+  const parts={cs:nbal(b,"cs"),rev:nbal(b,"svc")+nbal(b,"sales"),sra:nbal(b,"sra"),
+    exp:ACCTS.filter(a=>a.type==="exp").reduce((s,a)=>s+nbal(b,a.id),0),div:nbal(b,"div")};
+  return {A:As,L,E,parts};
+}
+
+let STEPS=[],N=0,NT=0,BOOKS=[],EQS=[],UNITS=[],MAXA=1,seed=0;
+function buildSet(sd){
+  seed=sd; STEPS=gen(sd); N=STEPS.length; NT=STEPS.filter(s=>s.phase!=="year").length;
+  BOOKS=[]; UNITS=[0]; const bk=emptyBook(); BOOKS.push(JSON.parse(JSON.stringify(bk)));
+  for(let i=0;i<N;i++){postStep(bk,STEPS[i],i);BOOKS.push(JSON.parse(JSON.stringify(bk)));UNITS.push(UNITS[i]+(STEPS[i].units||0));}
+  EQS=BOOKS.map(eq); MAXA=Math.max(...EQS.map(e=>e.A),1);
+  $("setNo").textContent="#"+sd;
+  buildTimeline();
+}
+
+// ---------- state ----------
+let k=0, recap=false, status=[], rows=[], fb=null, tries=0, revealed=false, showHint=false, confirmReset=false, tbTab="cur";
+function save(){try{
+  localStorage.setItem(KEY,JSON.stringify({seed,k,recap,status,year:YEAR}));
+  const v={};VIEWS.forEach(x=>v[x]=$("v-"+x).checked);localStorage.setItem(KEY+".views",JSON.stringify(v));
+  localStorage.setItem(KEY+".hide",$("hideIdle").checked?"1":"0");
+}catch(e){}}
+function load(){
+  let st=null;
+  try{st=JSON.parse(localStorage.getItem(KEY)||"null");
+    const v=JSON.parse(localStorage.getItem(KEY+".views")||"null");
+    if(v)VIEWS.forEach(x=>{if(x in v)$("v-"+x).checked=!!v[x];});
+    $("hideIdle").checked=localStorage.getItem(KEY+".hide")==="1";
+  }catch(e){}
+  if(st&&st.year!==YEAR)st=null;
+  let hashSeed=null; try{const m=/^#set(\d{1,9})$/.exec(location.hash||"");if(m)hashSeed=+m[1];}catch(e){}
+  if(hashSeed&&(!st||st.seed!==hashSeed)){buildSet(hashSeed);fresh();return;}
+  if(st&&st.seed){try{buildSet(st.seed);k=Math.max(0,Math.min(N,st.k|0));recap=!!st.recap&&k>0;status=Array.isArray(st.status)&&st.status.length===N?st.status:new Array(N).fill(null);if(k<N)startForm();return;}catch(e){}}
+  buildSet(randomSeed()); fresh();
+}
+function fresh(){k=0;recap=false;status=new Array(N).fill(null);startForm();}
+function startForm(){rows=k<N?STEPS[k].lines.map(()=>({a:"",dr:"",cr:""})):[];fb=null;tries=0;revealed=false;showHint=false;confirmReset=false;}
+function stepAccounts(i){return i>=0&&i<N?new Set(STEPS[i].lines.map(l=>l.a)):new Set();}
+function delta(i){const a=EQS[i],b=EQS[i+1];return {A:b.A-a.A,L:b.L-a.L,E:b.E-a.E};}
+
+// ---------- timeline ----------
+function buildTimeline(){
+  let h="";
+  PHASES.forEach(ph=>{
+    h+='<div class="phase ph-'+ph+'"><div class="phase-label">'+PHASE_SHORT[ph]+'</div><div class="ticks">';
+    STEPS.forEach((s,i)=>{if(s.phase===ph)h+='<button class="tick" data-i="'+i+'">'+s.ref+'</button>';});
+    h+='</div></div>';
+  });
+  $("timeline").innerHTML=h;
+}
+$("timeline").addEventListener("click",e=>{const t=e.target.closest(".tick");if(t)goTo(+t.dataset.i);});
+
+// ---------- entry card ----------
+function metaLine(s,i){return '<div class="entry-meta"><span class="pill '+s.phase+'">'+PHASE_NAME[s.phase]+' '+s.ref+'</span><span>'+s.date+', '+YEAR+'</span>'+(s.kind?'<span>· '+s.kind+'</span>':'')+'<span>· Entry '+(i+1)+' of '+N+'</span></div>';}
+function jeTable(s){
+  let h='<table class="je"><thead><tr><th>Account</th><th class="r">Debit</th><th class="r">Credit</th></tr></thead><tbody>';
+  s.lines.filter(l=>l.dr).forEach(l=>{h+='<tr><td>'+esc(A[l.a].name)+'</td><td class="r num dr-amt">'+fmt(l.dr)+'</td><td></td></tr>';});
+  s.lines.filter(l=>l.cr).forEach(l=>{h+='<tr><td class="cr-name">'+esc(A[l.a].name)+'</td><td></td><td class="r num cr-amt">'+fmt(l.cr)+'</td></tr>';});
+  return h+'</tbody></table>';
+}
+function effChips(d,i){
+  const items=[["Assets",d.A],["Liabilities",d.L],["Stockholders' equity",d.E]];
+  let h='<div class="effects">'+items.map(([n,v])=>'<span class="eff '+(v>0?"up":v<0?"down":"none")+'">'+n+' <span class="num">'+(v>0?"↑ "+fmt(v):v<0?"↓ "+fmt(v):"no change")+'</span></span>').join("");
+  if(stepAccounts(i).has("inv"))h+='<span class="eff inv">Guides on hand <span class="num">'+fmt(UNITS[i+1])+'</span> · Inventory <span class="num">'+d$(nbal(BOOKS[i+1],"inv"))+'</span></span>';
+  return h+'</div>';
+}
+function phaseNote(s,d){
+  if(s.phase==="year")return '<p class="note">Adjusting entries update a balance sheet account and an income statement account at year-end. None of them involve Cash.</p>';
+  if(s.pair==="a")return '<p class="note">Perpetual system: guides moved, so this transaction needs a second entry at cost. Record it next.</p>';
+  if(d.A===0&&d.L===0&&d.E===0)return '<p class="note">Assets went up and down by the same amount, so the totals are unchanged.</p>';
+  return "";
+}
+function controls(primary){
+  let nav;
+  if(confirmReset)nav='<span class="ask">Start over with:</span><button class="btn small" data-act="resetNew">New problem set</button><button class="btn small" data-act="resetSame">Same numbers</button><button class="btn small" data-act="cancelReset">Cancel</button>';
+  else nav='<button class="btn small" data-act="back"'+(k===0?" disabled":"")+' title="Undo the last posted entry">← Back</button><button class="btn small" data-act="reset"'+(k===0&&!recap&&!fb?" disabled":"")+'>⟲ Start over</button>';
+  return '<div class="actions"><div class="grp">'+nav+'</div><div class="grp">'+primary+'</div></div>';
+}
+function acctOptions(sel){
+  let h='<option value="">Choose an account…</option>';
+  GROUPS.forEach(g=>{h+='<optgroup label="'+g.key+'">';
+    ACCTS.filter(a=>g.types.includes(a.type)).sort((x,y)=>x.no-y.no).forEach(a=>{h+='<option value="'+a.id+'"'+(sel===a.id?" selected":"")+'>'+a.no+' '+esc(a.name)+'</option>';});
+    h+='</optgroup>';});
+  return h;
+}
+function missMsg(s,id){
+  if(s.miss&&s.miss[id])return s.miss[id];
+  const t=A[id].type;
+  if(s.missType&&s.missType[t])return s.missType[t];
+  if(s.phase==="year"&&id==="cash")return "Adjusting entries never involve Cash. They record amounts used up or changed in value that are not on the books yet.";
+  return A[id].name+" is not affected by this "+(s.phase==="year"?"adjusting entry":"transaction")+". Ask which accounts actually change and why.";
+}
+function grade(s){
+  const sol={}; s.lines.forEach(l=>sol[l.a]={side:l.dr?"D":"C",amt:l.dr||l.cr});
+  const seen=new Set(); let sumD=0,sumC=0;
+  const res=rows.map(r=>{
+    const d=parseAmt(r.dr), c=parseAmt(r.cr);
+    if(!r.a)return {cls:"bad-a",msg:"Choose an account for this line."};
+    if(seen.has(r.a))return {cls:"bad-a",msg:A[r.a].name+" is already used on another line."};
+    seen.add(r.a);
+    if(d&&!isNaN(d))sumD+=d; if(c&&!isNaN(c))sumC+=c;
+    if((d===null||d===0)&&(c===null||c===0))return {cls:"bad-n",msg:"Enter an amount in the Debit or Credit column."};
+    if(isNaN(d)||isNaN(c))return {cls:"bad-n",msg:"Amounts must be whole-dollar numbers, like 1200 or 1,200."};
+    if(d&&c)return {cls:"bad-s",msg:"Put the amount in only one column."};
+    const x=sol[r.a];
+    if(!x)return {cls:"bad-a",msg:missMsg(s,r.a)};
+    const side=d?"D":"C", amt=d||c;
+    if(side!==x.side){
+      const inc=x.side===A[r.a].normal;
+      return {cls:"bad-s",msg:"Right account, wrong side. "+A[r.a].name+" "+(inc?"increases":"decreases")+" here. It has a normal "+(A[r.a].normal==="D"?"debit":"credit")+" balance, so it is "+(x.side==="D"?"debited":"credited")+"."};
+    }
+    if(amt!==x.amt){
+      const tip=s.amtTip?s.amtTip+(s.calc?" Show a hint if you need it.":""):s.calc?"Recheck the calculation. Show a hint if you need it.":"Check the amount given in the transaction.";
+      return {cls:"bad-n",msg:"Right account and side, but the amount is not correct. "+tip};
+    }
+    return {cls:"ok",msg:"Correct."};
+  });
+  const missing=Object.keys(sol).filter(a=>!seen.has(a)).length;
+  const all=res.every(r=>r.cls==="ok")&&missing===0;
+  const notes=[];
+  if(!all){
+    if(sumD!==sumC)notes.push("Debits ("+d$(sumD)+") do not equal credits ("+d$(sumC)+"). Every entry must balance.");
+    if(missing>0)notes.push(missing===1?"One account that belongs in this entry is missing.":missing+" accounts that belong in this entry are missing.");
+  }
+  return {res,all,notes,amtWrong:res.some(x=>x.cls==="bad-n"&&x.msg.indexOf("amount is not")>-1)};
+}
+function renderEntry(){
+  const el=$("entry");
+  if(k>=N&&!recap){renderDone();return;}
+  if(recap){renderRecap();return;}
+  const s=STEPS[k];
+  const lock=(fb&&fb.all)||revealed;
+  let h=metaLine(s,k)+'<h3 class="entry-title">'+esc(s.title)+'</h3><p class="entry-desc">'+esc(s.desc)+'</p>';
+  h+='<p class="note" style="margin-top:0">Choose the accounts and enter whole-dollar amounts. This entry has '+s.lines.length+' lines. List debits first, then credits.</p>';
+  h+='<table class="rec"><thead><tr><th>Account</th><th class="r">Debit</th><th class="r">Credit</th></tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    const f=fb&&fb.res[i];
+    h+='<tr class="line '+(f?f.cls:"")+'" data-row="'+i+'"><td><select data-i="'+i+'" data-f="a" aria-label="Account, line '+(i+1)+'"'+(lock?" disabled":"")+'>'+acctOptions(r.a)+'</select></td>'+
+      '<td class="amt"><input data-i="'+i+'" data-f="dr" inputmode="numeric" autocomplete="off" aria-label="Debit, line '+(i+1)+'" value="'+esc(r.dr)+'" class="'+(r.dr?"filled":"")+'"'+(lock?" disabled":"")+'></td>'+
+      '<td class="amt"><input data-i="'+i+'" data-f="cr" inputmode="numeric" autocomplete="off" aria-label="Credit, line '+(i+1)+'" value="'+esc(r.cr)+'" class="'+(r.cr?"filled":"")+'"'+(lock?" disabled":"")+'></td></tr>';
+    if(f&&!revealed)h+='<tr class="fb"><td colspan="3"><div class="fbmsg '+(f.cls==="ok"?"ok":"no")+'"><span>'+(f.cls==="ok"?"✓":"✗")+'</span><span>'+esc(f.msg)+'</span></div></td></tr>';
+  });
+  const sd=rows.reduce((t,r)=>t+(parseAmt(r.dr)||0),0), sc=rows.reduce((t,r)=>t+(parseAmt(r.cr)||0),0);
+  h+='</tbody><tfoot><tr><td>Totals</td><td>'+fmt(sd)+'</td><td>'+fmt(sc)+'</td></tr></tfoot></table>';
+  if(fb&&!revealed){
+    if(fb.all)h+='<div class="overall ok"><b>✓ '+(tries===1?"Correct on the first try.":"Correct after "+tries+" tries.")+'</b> '+esc(s.why)+'</div>';
+    else h+='<div class="overall no"><b>Not quite yet.</b> Fix the lines marked ✗ and check again.'+(fb.notes.length?'<ul>'+fb.notes.map(n=>'<li>'+esc(n)+'</li>').join("")+'</ul>':'')+'</div>';
+  }
+  if(revealed)h+='<div class="overall no" style="margin-bottom:10px"><b>Correct entry.</b> Compare it with yours, then post it.</div>'+jeTable(s)+'<div class="why"><b>Why this entry</b><br>'+esc(s.why)+'</div>';
+  if(s.calc&&(showHint||revealed))h+='<div class="hintbox"><b>Calculation:</b> <span class="num">'+esc(s.calc)+'</span></div>';
+  let prim;
+  if(lock)prim='<button class="btn primary" data-act="post">Post the entry →</button>';
+  else prim=(s.calc&&!showHint?'<button class="btn small" data-act="hint">Show a hint</button>':'')+'<button class="btn small" data-act="show">Show the answer</button><button class="btn primary" data-act="check">Check my entry</button>';
+  el.innerHTML=h+controls(prim);
+  $("entrySub").textContent=lock?"Ready to post":"Record the entry";
+}
+function renderRecap(){
+  const i=k-1, s=STEPS[i], d=delta(i), st=status[i];
+  $("entrySub").textContent="Posted";
+  const banner=st==="first"?'<div class="result ok">✓ Posted. You recorded this entry correctly on the first try.</div>':
+    st==="retry"?'<div class="result ok">✓ Posted. You recorded this entry correctly after more than one try.</div>':
+    '<div class="result no">Posted from the answer. Review why it works before moving on.</div>';
+  const prim=k<N?'<button class="btn primary" data-act="next">Record next entry →</button>':'<button class="btn primary" data-act="finish">See your results →</button>';
+  $("entry").innerHTML=banner+metaLine(s,i)+'<h3 class="entry-title">'+esc(s.title)+'</h3><p class="entry-desc">'+esc(s.desc)+'</p>'+(s.calc?'<div class="calc">'+esc(s.calc)+'</div>':'')+jeTable(s)+
+    '<div class="why"><b>Why this entry</b><br>'+esc(s.why)+'</div>'+effChips(d,i)+phaseNote(s,d)+controls(prim);
+}
+function renderDone(){
+  $("entrySub").textContent="Year complete";
+  const c=x=>status.filter(v=>v===x).length;
+  $("entry").innerHTML='<h3 class="entry-title" style="margin-top:0">You finished the year</h3>'+
+    '<p class="entry-desc">All '+N+' entries for '+YEAR+' are posted. The trial balance is now the adjusted trial balance, and the statements show the final '+YEAR+' results.</p>'+
+    '<div class="effects"><span class="eff up">First try <span class="num">'+c("first")+'</span></span><span class="eff none">Retried <span class="num">'+c("retry")+'</span></span><span class="eff none">Answer shown or skipped <span class="num">'+(c("shown")+c("skipped"))+'</span></span></div>'+
+    '<p class="note">Start a new problem set to practice the same entries with different numbers and a different order.</p>'+
+    controls('<button class="btn primary" data-act="resetNew">New problem set →</button>');
+}
+$("entry").addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]"); if(!b||b.disabled)return;
+  const act=b.dataset.act, s=STEPS[k];
+  if(act==="check"){tries++;fb=grade(s);if(fb.amtWrong&&s.calc&&tries>=2)showHint=true;render(false);
+    const first=$("entry").querySelector(".line.bad-a select,.line.bad-s input,.line.bad-n input");if(first)first.focus();else{const p=$("entry").querySelector('[data-act="post"]');if(p)p.focus();}}
+  else if(act==="hint"){showHint=true;renderEntry();}
+  else if(act==="show"){revealed=true;renderEntry();const p=$("entry").querySelector('[data-act="post"]');if(p)p.focus();}
+  else if(act==="post"){status[k]=revealed?"shown":(tries===1&&fb&&fb.all?"first":"retry");k++;recap=true;confirmReset=false;render(true);focusAct("next")||focusAct("finish");}
+  else if(act==="next"){recap=false;startForm();render(false);scrollEntry();const f=$("entry").querySelector("select");if(f)f.focus({preventScroll:true});}
+  else if(act==="finish"){recap=false;render(false);}
+  else if(act==="back"){goTo(k-1);}
+  else if(act==="reset"){confirmReset=true;renderEntry();}
+  else if(act==="cancelReset"){confirmReset=false;renderEntry();}
+  else if(act==="resetSame"){fresh();render(true);scrollEntry();}
+  else if(act==="resetNew"){let sd=randomSeed();if(sd===seed)sd++;buildSet(sd);fresh();render(true);scrollEntry();}
+});
+function focusAct(a){const p=$("entry").querySelector('[data-act="'+a+'"]');if(p){p.focus({preventScroll:true});return true;}return false;}
+function onField(e){
+  const inp=e.target; if(!inp.matches(".rec select,.rec input"))return;
+  const i=+inp.dataset.i; rows[i][inp.dataset.f]=inp.value;
+  if(inp.tagName==="INPUT")inp.classList.toggle("filled",!!inp.value);
+  if(fb&&fb.res[i]){fb.res[i]=null;const tr=inp.closest("tr");tr.className="line";const nx=tr.nextElementSibling;if(nx&&nx.classList.contains("fb"))nx.remove();}
+  const tf=$("entry").querySelector(".rec tfoot tr");
+  if(tf){tf.children[1].textContent=fmt(rows.reduce((t,r)=>t+(parseAmt(r.dr)||0),0));tf.children[2].textContent=fmt(rows.reduce((t,r)=>t+(parseAmt(r.cr)||0),0));}
+}
+$("entry").addEventListener("input",onField);
+$("entry").addEventListener("change",onField);
+$("entry").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".rec input")){e.preventDefault();const c=$("entry").querySelector('[data-act="check"]');if(c)c.click();}});
+function scrollEntry(){const p=$("pEntry");const r=p.getBoundingClientRect();const top=parseFloat(getComputedStyle(p).scrollMarginTop)||0;if(r.top<top-2||r.top>window.innerHeight*0.6)p.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
+
+function goTo(i){
+  i=Math.max(0,Math.min(N-1,i));
+  if(i<k){for(let j=i;j<N;j++)status[j]=null;}
+  else for(let j=k;j<i;j++)if(!status[j])status[j]="skipped";
+  k=i; recap=false; startForm(); render(true); scrollEntry();
+}
+
+// ---------- equation ----------
+function renderEquation(){
+  const e=EQS[k], d=k>0?delta(k-1):{A:0,L:0,E:0}, ok=e.A===e.L+e.E;
+  $("eqBal").innerHTML='<span class="balanced'+(ok?"":" no")+'">'+(ok?"✓ In balance":"✗ Out of balance")+'</span>';
+  const term=(lab,v,dv)=>'<div class="term"><div class="k">'+lab+'</div><div class="v">'+money(v,true)+'</div><div class="d '+(dv>0?"up":dv<0?"down":"zero")+'">'+(k>0?(dv===0?"no change":sgn(dv)):"&nbsp;")+'</div></div>';
+  const p=e.parts, cur=stepAccounts(k-1);
+  const touched=id=>id==="exp"?ACCTS.some(a=>a.type==="exp"&&cur.has(a.id)):id==="rev"?(cur.has("svc")||cur.has("sales")):cur.has(id);
+  const part=(id,lab,v)=>'<span class="part'+(touched(id)?" chg":"")+'"><span class="k">'+lab+'</span><span class="v">'+fmt(v)+'</span></span>';
+  const parts=part("cs","Common stock",p.cs)+'<span class="o">+</span>'+part("rev","Revenues",p.rev)+'<span class="o">−</span>'+part("sra","Sales returns & allow.",p.sra)+'<span class="o">−</span>'+part("exp","Expenses incl. COGS",p.exp)+'<span class="o">−</span>'+part("div","Dividends",p.div);
+  const wA=(e.A/MAXA*100).toFixed(2), wL=(e.L/MAXA*100).toFixed(2), wE=(Math.max(0,e.E)/MAXA*100).toFixed(2);
+  $("equation").innerHTML='<div class="eq">'+term("Assets",e.A,d.A)+'<div class="op">=</div>'+term("Liabilities",e.L,d.L)+'<div class="op">+</div>'+term("Equity",e.E,d.E)+'</div>'+
+   '<div class="bars"><div class="barrow"><span>A</span><div class="track"><div class="seg-a" style="width:'+wA+'%"></div></div></div>'+
+   '<div class="barrow"><span>L + E</span><div class="track"><div class="seg-l" style="width:'+wL+'%"></div><div class="seg-e" style="width:'+wE+'%"></div></div></div>'+
+   '<div class="legend"><span><i class="seg-a"></i>Assets</span><span><i class="seg-l"></i>Liabilities</span><span><i class="seg-e"></i>Stockholders\' equity</span></div></div>'+
+   '<div class="eqparts" aria-label="Stockholders\' equity detail">'+parts+'</div>'+
+   (k===0?'<p class="note">Every account starts at zero. Post the first entry to see the equation change.</p>':'');
+}
+
+// ---------- T-accounts ----------
+function renderT(){
+  const b=BOOKS[k], cur=k-1, hide=$("hideIdle").checked;
+  let h="";
+  GROUPS.forEach(g=>{
+    const accts=ACCTS.filter(a=>g.types.includes(a.type)).filter(a=>!hide||b[a.id].dr.length||b[a.id].cr.length);
+    if(!accts.length)return;
+    h+='<div class="t-group"><h3>'+g.key+' <span>'+g.note+'</span></h3><div class="t-grid">';
+    accts.forEach(a=>{
+      const t=b[a.id], used=t.dr.length||t.cr.length, touch=t.dr.concat(t.cr).some(x=>x.si===cur);
+      const row=x=>'<div class="t-row'+(x.si===cur?" cur":"")+'"><span class="ref">'+x.ref+'</span><span class="amt">'+fmt(x.amt)+'</span></div>';
+      const bal=t.d-t.c;
+      let L=t.dr.map(row).join(""), R=t.cr.map(row).join("");
+      if(used&&bal!==0){const br='<div class="t-row balrow"><span class="ref">Bal.</span><span class="amt">'+fmt(bal)+'</span></div>'; if(bal>0)L+=br; else R+=br;}
+      h+='<div class="tacct'+(used?"":" idle")+(touch?" touch":"")+'"><div class="t-head"><span class="no">'+a.no+'</span><span>'+esc(a.name)+'</span></div>'+
+        '<div class="t-body"><div class="t-side l"><span class="lab">Dr</span>'+L+'</div><div class="t-side r"><span class="lab">Cr</span>'+R+'</div></div>'+
+        (used&&bal===0?'<div class="t-zero">Balance 0</div>':'')+
+        (a.id==="inv"&&used?'<div class="t-units">'+fmt(UNITS[k])+' guides on hand</div>':'')+'</div>';
+    });
+    h+='</div></div>';
+  });
+  $("taccts").innerHTML=h||'<div class="empty">No account has activity yet. Post the first entry.</div>';
+}
+
+// ---------- Trial balance ----------
+function tbTitle(){
+  if(k===0)return {name:"Trial Balance",note:"No entries posted yet."};
+  if(k<NT)return {name:"Trial Balance (in progress)",note:"After transaction "+STEPS[k-1].ref+". The unadjusted trial balance is complete after transaction "+STEPS[NT-1].ref+"."};
+  if(k===NT)return {name:"Unadjusted Trial Balance",note:"All "+YEAR+" transactions are posted. Year-end adjusting entries come next."};
+  if(k<N)return {name:"Trial Balance (adjusting in progress)",note:"After adjusting entry "+STEPS[k-1].ref+"."};
+  return {name:"Adjusted Trial Balance",note:"The "+YEAR+" financial statements are prepared from these balances."};
+}
+function renderTB(){
+  $("tabCur").setAttribute("aria-selected",tbTab==="cur");$("tabWs").setAttribute("aria-selected",tbTab==="ws");
+  if(tbTab==="ws"){renderWS();return;}
+  const b=BOOKS[k], cur=stepAccounts(k-1), t=tbTitle();
+  const list=ACCTS.slice().sort((x,y)=>x.no-y.no).filter(a=>b[a.id].d-b[a.id].c!==0);
+  let D=0,C=0;
+  let h='<div class="scroll"><table class="tb"><caption><div class="cap-firm">Problem Solvers, Inc.</div><div class="cap-name">'+t.name+'</div><div class="cap-date">December 31, '+YEAR+'</div></caption>'+
+    '<thead><tr><th>No.</th><th>Account</th><th class="r">Debit</th><th class="r">Credit</th></tr></thead><tbody>';
+  if(!list.length)h+='<tr><td colspan="4" class="empty">Nothing to list yet.</td></tr>';
+  list.forEach(a=>{const s=b[a.id].d-b[a.id].c; if(s>0)D+=s; else C-=s;
+    h+='<tr class="'+(cur.has(a.id)?"chg":"")+'"><td class="no">'+a.no+'</td><td>'+esc(a.name)+'</td><td class="r">'+(s>0?fmt(s):"")+'</td><td class="r">'+(s<0?fmt(-s):"")+'</td></tr>';});
+  h+='</tbody><tfoot><tr><td></td><td>Totals</td><td class="r">'+money(D,true)+'</td><td class="r">'+money(C,true)+'</td></tr></tfoot></table></div>';
+  h+='<div class="tb-status"><span>'+t.note+'</span><span class="balanced'+(D===C?"":" no")+'">'+(D===C?"✓ Debits equal credits":"✗ Out of balance")+'</span></div>';
+  $("tb").innerHTML=h;
+}
+function renderWS(){
+  const U=BOOKS[NT], AD=BOOKS[N], adj=emptyBook();
+  STEPS.forEach((s,i)=>{if(s.phase==="year")postStep(adj,s,i);});
+  const reach={u:k>=NT,a:k>=N};
+  const list=ACCTS.slice().sort((x,y)=>x.no-y.no).filter(a=>U[a.id].d-U[a.id].c||adj[a.id].d||adj[a.id].c||AD[a.id].d-AD[a.id].c);
+  const cell=(on,v,cls)=>on?'<td class="r '+(cls||"")+'">'+(v?fmt(v):"")+'</td>':'<td class="dim '+(cls||"")+'">·</td>';
+  const tot={ud:0,uc:0,ad:0,ac:0,jd:0,jc:0};
+  let h='<div class="scroll"><table class="tb ws"><caption><div class="cap-firm">Problem Solvers, Inc.</div><div class="cap-name">Worksheet</div><div class="cap-date">For the Year Ended December 31, '+YEAR+'</div></caption><thead>'+
+   '<tr><th rowspan="2">Account</th><th colspan="2" class="grp u gap">Unadjusted TB</th><th colspan="2" class="grp a gap">Adjustments</th><th colspan="2" class="grp a gap">Adjusted TB</th></tr>'+
+   '<tr><th class="r gap">Dr</th><th class="r">Cr</th><th class="r gap">Dr</th><th class="r">Cr</th><th class="r gap">Dr</th><th class="r">Cr</th></tr></thead><tbody>';
+  list.forEach(a=>{
+    const u=U[a.id].d-U[a.id].c, ad=AD[a.id].d-AD[a.id].c;
+    const ud=u>0?u:0,uc=u<0?-u:0,jd=adj[a.id].d,jc=adj[a.id].c,dd=ad>0?ad:0,dc=ad<0?-ad:0;
+    tot.ud+=ud;tot.uc+=uc;tot.jd+=jd;tot.jc+=jc;tot.ad+=dd;tot.ac+=dc;
+    h+='<tr><td>'+esc(a.name)+'</td>'+cell(reach.u,ud,"gap")+cell(reach.u,uc)+cell(reach.a,jd,"gap")+cell(reach.a,jc)+cell(reach.a,dd,"gap")+cell(reach.a,dc)+'</tr>';});
+  const tc=(on,v,cls)=>on?'<td class="r '+(cls||"")+'">'+money(v,true)+'</td>':'<td class="dim '+(cls||"")+'">·</td>';
+  h+='</tbody><tfoot><tr><td>Totals</td>'+tc(reach.u,tot.ud,"gap")+tc(reach.u,tot.uc)+tc(reach.a,tot.jd,"gap")+tc(reach.a,tot.jc)+tc(reach.a,tot.ad,"gap")+tc(reach.a,tot.ac)+'</tr></tfoot></table></div>';
+  const next=!reach.u?"Columns fill in as you reach each stage. Post through transaction "+STEPS[NT-1].ref+" for the unadjusted trial balance.":!reach.a?"Post through adjusting entry "+STEPS[N-1].ref+" to fill the adjustments and adjusted trial balance.":"All stages complete. Notice how the inventory write-down moves from Inventory into Cost of Goods Sold.";
+  h+='<div class="tb-status"><span>'+next+'</span></div>';
+  $("tb").innerHTML=h;
+}
+
+// ---------- Financial statements ----------
+function renderFS(){
+  const b=BOOKS[k], cur=stepAccounts(k-1);
+  let basis;
+  if(k===0)basis=['warn',"No entries yet. Statements fill in as you post."];
+  else if(k<N)basis=['warn',"Based on balances before all year-end adjusting entries are recorded. These figures are incomplete until adjustment "+STEPS[N-1].ref+" is posted."];
+  else basis=['ok',"Prepared from the adjusted trial balance. These are the "+YEAR+" financial statements."];
+  const sales=nbal(b,"sales"), sra=nbal(b,"sra"), netS=sales-sra, cogs=nbal(b,"cogs"), gp=netS-cogs, svc=nbal(b,"svc");
+  const exps=OPEX.map(id=>({a:A[id],v:nbal(b,id)})).filter(x=>x.v).sort((x,y)=>y.v-x.v);
+  const totE=exps.reduce((s,x)=>s+x.v,0), ni=gp+svc-totE, div=nbal(b,"div"), reBeg=0, reEnd=reBeg+ni-div;
+  const R=(label,c1,c2,o)=>{o=o||{};return '<tr class="'+(o.h?"h ":"")+(o.tot?"tot ":"")+(o.chg?"chg":"")+'"><td class="'+(o.i?"i"+o.i:"")+'">'+label+'</td><td class="n '+(o.u1||"")+'">'+(c1==null?"":c1)+'</td><td class="n '+(o.u2||"")+'">'+(c2==null?"":c2)+'</td></tr>';};
+  const cap=(n,d)=>'<caption><div class="cap-firm">Problem Solvers, Inc.</div><div class="cap-name">'+n+'</div><div class="cap-date">'+d+'</div></caption>';
+  const ch=id=>cur.has(id);
+  const per="For the Year Ended December 31, "+YEAR;
+  let is='<table class="st">'+cap("Multi-step Income Statement",per);
+  is+=R("Sales revenue",money(sales,true),null,{chg:ch("sales")});
+  is+=R("Less: Sales returns and allowances",fmt(sra),null,{i:1,chg:ch("sra"),u1:"ul"});
+  is+=R("Net sales",null,money(netS,true),{tot:1});
+  is+=R("Cost of goods sold",null,fmt(cogs),{chg:ch("cogs"),u2:"ul"});
+  is+=R("Gross profit",null,money(gp,true),{tot:1});
+  is+=R("Service revenue",null,fmt(svc),{chg:ch("svc"),u2:"ul"});
+  is+=R("Gross profit and service revenue",null,money(gp+svc,true));
+  is+=R("Operating expenses",null,null,{h:1});
+  if(!exps.length)is+=R("No operating expenses recorded",null,null,{i:1});
+  exps.forEach((x,j)=>{is+=R(esc(x.a.name),fmt(x.v),null,{i:1,chg:ch(x.a.id),u1:j===exps.length-1?"ul":""});});
+  is+=R("Total operating expenses",null,fmt(totE),{i:2,u2:"ul"});
+  is+=R(ni>=0?"Net income":"Net loss",null,money(ni,true),{tot:1,u2:"dul"})+'</table>';
+  if(netS>0)is+='<div class="gp">Gross profit percentage on guide sales: <span class="num">'+d$(gp)+' ÷ '+d$(netS)+' = '+(gp/netS*100).toFixed(2)+'%</span></div>';
+  let re='<table class="st">'+cap("Statement of Retained Earnings",per);
+  re+=R("Retained earnings, January 1, "+YEAR,null,money(reBeg,true));
+  re+=R("Add: "+(ni>=0?"Net income":"Net loss"),null,money(ni),{u2:"ul"});
+  re+=R("",null,money(reBeg+ni));
+  re+=R("Less: Dividends",null,fmt(div),{chg:ch("div"),u2:"ul"});
+  re+=R("Retained earnings, December 31, "+YEAR,null,money(reEnd,true),{tot:1,u2:"dul"})+'</table>';
+  const cash=nbal(b,"cash"),ar=nbal(b,"ar"),inv=nbal(b,"inv"),sup=nbal(b,"sup"),eqp=nbal(b,"equip"),ad=nbal(b,"ad");
+  const TCA=cash+ar+inv+sup, TA=TCA+eqp-ad;
+  const LN={ap:"Accounts payable",ur:"Deferred revenue",wp:"Wages payable"};
+  const liabs=["ap","ur","wp"].map(id=>({id,v:nbal(b,id)})).filter(x=>x.v);
+  const TL=liabs.reduce((s,x)=>s+x.v,0), cs=nbal(b,"cs"), TSE=cs+reEnd;
+  let bs='<table class="st">'+cap("Classified Balance Sheet","December 31, "+YEAR);
+  bs+=R("Assets",null,null,{h:1});
+  bs+=R("Current assets",null,null,{i:1});
+  bs+=R("Cash",money(cash,true),null,{i:2,chg:ch("cash")})+R("Accounts receivable",fmt(ar),null,{i:2,chg:ch("ar")})+R("Inventory",fmt(inv),null,{i:2,chg:ch("inv")})+R("Supplies",fmt(sup),null,{i:2,chg:ch("sup"),u1:"ul"});
+  bs+=R("Total current assets",null,money(TCA,true),{i:1});
+  bs+=R("Equipment",fmt(eqp),null,{i:1,chg:ch("equip")})+R("Less: Accumulated depreciation",fmt(ad),fmt(eqp-ad),{i:2,chg:ch("ad"),u1:"ul",u2:"ul"});
+  bs+=R("Total assets",null,money(TA,true),{tot:1,u2:"dul"});
+  bs+=R("Liabilities and Stockholders' Equity",null,null,{h:1});
+  bs+=R("Current liabilities",null,null,{i:1});
+  if(!liabs.length)bs+=R("None",null,"0",{i:2});
+  liabs.forEach((x,j)=>{bs+=R(LN[x.id],j===0?money(x.v,true):fmt(x.v),null,{i:2,chg:ch(x.id),u1:j===liabs.length-1?"ul":""});});
+  bs+=R("Total liabilities",null,money(TL,true),{i:2});
+  bs+=R("Stockholders' equity",null,null,{i:1});
+  bs+=R("Common stock",fmt(cs),null,{i:2,chg:ch("cs")})+R("Retained earnings",fmt(reEnd),null,{i:2,u1:"ul",chg:["svc","sales","sra","div"].some(ch)||ACCTS.some(a=>a.type==="exp"&&ch(a.id))});
+  bs+=R("Total stockholders' equity",null,fmt(TSE),{i:2,u2:"ul"});
+  bs+=R("Total liabilities and stockholders' equity",null,money(TL+TSE,true),{tot:1,u2:"dul"})+'</table>';
+  bs+='<div class="st-check balanced'+(TA===TL+TSE?"":" no")+'">'+(TA===TL+TSE?"✓ Total assets equal total liabilities and stockholders' equity":"✗ Does not balance")+'</div>';
+  $("fs").innerHTML='<div class="stmt-basis '+basis[0]+'">'+basis[1]+'</div><div class="stmts"><div>'+is+'<div style="height:22px"></div>'+re+'</div><div>'+bs+'</div></div>';
+}
+
+// ---------- Journal ----------
+function renderJournal(){
+  let h="", lastPh="";
+  for(let i=0;i<k;i++){const s=STEPS[i];
+    if(s.phase!==lastPh){h+='<div class="jhead '+s.phase+'">'+PHASE_SHORT[s.phase]+'</div>';lastPh=s.phase;}
+    const ln=s.lines.filter(l=>l.dr).map(l=>'<div class="jl"><span class="nm">'+esc(A[l.a].name)+'</span><span>'+fmt(l.dr)+'</span></div>').join("")+
+             s.lines.filter(l=>l.cr).map(l=>'<div class="jl c"><span class="nm">'+esc(A[l.a].name)+'</span><span>'+fmt(l.cr)+'</span></div>').join("");
+    h+='<div class="jitem'+(i===k-1?" cur":"")+'"><span class="ref">'+s.ref+'</span><span class="dt">'+s.date+'</span><span class="lines"><span class="t">'+esc(s.title)+'</span>'+ln+'</span></div>';}
+  if(k===0)h+='<div class="empty">No entries posted yet.</div>';
+  const left=N-k; if(left>0)h+='<div class="empty">'+left+' more '+(left===1?"entry":"entries")+' to record this year.</div>';
+  $("journal").innerHTML=h;
+}
+
+// ---------- views / bar ----------
+function applyViews(){
+  const v={};VIEWS.forEach(x=>v[x]=$("v-"+x).checked);
+  $("pEq").hidden=!v.eq; $("pT").hidden=!v.t; $("pTB").hidden=!v.tb; $("pFS").hidden=!v.fs; $("pJ").hidden=!v.j;
+  $("gridTop").classList.toggle("solo",!v.t);
+  $("gridMid").hidden=!v.tb&&!v.fs;
+  $("gridMid").classList.toggle("solo",!(v.tb&&v.fs));
+}
+const SLAB={first:"correct on first try",retry:"correct after retrying",shown:"answer shown",skipped:"skipped"};
+function renderBar(){
+  const working=!recap&&k<N;
+  $("where").innerHTML='<b>'+k+' of '+N+'</b> entries posted'+(working?' · now recording '+PHASE_NAME[STEPS[k].phase].toLowerCase()+' '+STEPS[k].ref:'');
+  const done=status.filter(Boolean).length, first=status.filter(v=>v==="first").length;
+  const sc=$("score"); sc.hidden=done===0; sc.textContent="First-try correct: "+first+" of "+done;
+  document.querySelectorAll(".tick").forEach(t=>{const i=+t.dataset.i, s=STEPS[i];
+    t.className="tick"+(i<k?" done":"")+((working&&i===k)||(recap&&i===k-1)?" cur":"")+(status[i]?" s-"+status[i]:"");
+    t.title=s.ref+" · "+s.title+(status[i]?" ("+SLAB[status[i]]+")":i<k?"":" (click to jump here)");
+    t.setAttribute("aria-label",PHASE_NAME[s.phase]+" "+s.ref+": "+s.title+(status[i]?", "+SLAB[status[i]]:""));
+  });
+}
+function render(flash){
+  applyViews();renderBar();renderEntry();renderEquation();renderT();renderTB();renderFS();renderJournal();save();
+  if(flash&&!matchMedia("(prefers-reduced-motion: reduce)").matches){
+    document.querySelectorAll(".eq .term .v").forEach(v=>{v.classList.remove("flash");void v.offsetWidth;v.classList.add("flash");});
+  }
+  const ct=document.querySelector(".tick.cur");
+  if(ct){const tl=$("timeline");const cr=ct.getBoundingClientRect(),tr=tl.getBoundingClientRect();if(cr.left<tr.left||cr.right>tr.right)tl.scrollLeft+=cr.left-tr.left-tr.width/2;}
+}
+VIEWS.forEach(x=>$("v-"+x).addEventListener("change",()=>{applyViews();save();}));
+$("hideIdle").addEventListener("change",()=>{renderT();save();});
+$("tabCur").addEventListener("click",()=>{tbTab="cur";renderTB();});
+$("tabWs").addEventListener("click",()=>{tbTab="ws";renderTB();});
+
+function measure(){
+  const r=document.documentElement;
+  r.style.setProperty("--b1",$("band1").offsetHeight+"px");
+  r.style.setProperty("--b2",$("band2").offsetHeight+"px");
+}
+try{new ResizeObserver(measure).observe($("band1"));new ResizeObserver(measure).observe($("band2"));}catch(e){window.addEventListener("resize",measure);}
+measure();
+
+window.__lab={gen,ACCTS};
+load();
+render(false);
+})();
+</script>
+</body>
+</html>
