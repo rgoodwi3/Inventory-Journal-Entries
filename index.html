@@ -318,6 +318,11 @@ footer{font-size:12.5px;color:var(--muted);padding-block:0 30px}
 .modesw button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 .setchip.graded{border-color:var(--gold);color:var(--gold);font-weight:600}
 .timeline.locked .tick,.timeline.locked button{cursor:default}
+.timeline.locked .tick.can{cursor:pointer}
+.timeline.locked .tick.can:hover{border-color:var(--ink)}
+.rv-note{margin:0 0 10px;font-size:14px;border-radius:8px;padding:9px 12px;background:var(--est-soft,#fcefc7);color:var(--est,#8a6100)}
+:root[data-theme="dark"] .rv-note{background:var(--est-soft,#2e2508);color:var(--est,#FFC629)}
+.rv-ans{font-family:var(--f-num);font-weight:600;white-space:nowrap}
 .score.graded{background:var(--navy);color:#fff}
 :root[data-theme="dark"] .score.graded{background:var(--gold);color:#111b2e}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .score.graded{background:var(--gold);color:#111b2e}}
@@ -778,6 +783,7 @@ function rebuildBooks(){
 let k=0, recap=false, status=[], rows=[], fb=null, tries=0, revealed=false, showHint=false, confirmReset=false, tbTab="cur";
 // GS = the graded attempt as the server reports it. It never holds the seed or any answer the server hasn't returned.
 let MODE="practice", GS=null, PENDING=null, BUSY=false, gwarn=null;
+let VIEW=null; // graded mode: the submitted step being looked at (view only), or null for the current step
 function save(){try{
   if(MODE==="graded"&&GS)localStorage.setItem(GKEY,JSON.stringify({attempt:GS.id,course:GS.course}));
   else if(seed)localStorage.setItem(KEY,JSON.stringify({seed,k,recap,status,year:YEAR}));
@@ -846,7 +852,7 @@ async function enterAttempt(id){
   const p=await api({action:"problem",attempt_id:id});
   applyProblem(p); render(true); scrollEntry(); focusSel();
 }
-function exitGraded(){save();MODE="practice";setYear(PYEAR);loadPractice(null);}
+function exitGraded(){save();VIEW=null;MODE="practice";setYear(PYEAR);loadPractice(null);}
 function when(ms){return new Date(ms).toLocaleString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"}).replace(/ /g," ");}
 function markBusy(act,label){document.querySelectorAll('#entry [data-act="'+act+'"]').forEach(b=>{b.disabled=true;b.setAttribute("aria-busy","true");if(label)b.textContent=label;});}
 function onApiError(e){if(e&&e.code==="unauthorized"){USER=null;openGDlg(e.message);}}
@@ -900,7 +906,7 @@ function rulesHTML(){
   return '<ul>'+
     '<li><b>No hints or answers.</b> Show a hint and Show the answer are turned off.</li>'+
     '<li><b>Only your first submission counts.</b> Each journal entry is worth 1 point'+(pts?' ('+pts+' points in all)':'')+'. After you submit, you\'ll see what is wrong and why, and you must fix it to move on, but retries don\'t change your score.</li>'+
-    '<li><b>No going back.</b> You can\'t return to earlier steps or start over during the attempt.</li>'+
+    '<li><b>Look back, but no changes.</b> Click an earlier step in the timeline to see what you submitted and its feedback. You can\'t change a submitted step or start over during the attempt.</li>'+
     '<li><b>Saved to your account.</b> You get a new problem set, graded and saved on the server as you go. You can leave and come back, even on another device, but the clock keeps running.</li>'+
     '<li><b>Your score goes to your class.</b> When you finish, your score and finish time are recorded for your instructor. There is nothing to copy or paste.</li>'+
     '<li><b>Work on your own.</b> Getting help from another person or an AI tool, or sharing your answers, is academic dishonesty. Every attempt has its own numbers.</li>'+
@@ -1012,11 +1018,12 @@ function applyProblem(p){
   setYear(p.lab_year); // every date and label follows the attempt, even if it is finished after New Year
   STEPS=JSON.parse(JSON.stringify(p.steps)); N=STEPS.length; NT=STEPS.filter(s=>s.phase!=="year").length;
   GS={id:p.attempt_id,course:COURSE,startedAt:p.started_at,finishedAt:p.finished_at||null,
-    score:p.score==null?null:p.score,total:p.total==null?null:p.total,max:p.max_points.slice(),pts:[],done:[],err:null};
+    score:p.score==null?null:p.score,total:p.total==null?null:p.total,max:p.max_points.slice(),pts:[],done:[],ans:[],fb:[],err:null};
+  VIEW=null;
   status=new Array(N).fill(null);
   const ownSaved=ownLoad();
   Object.keys(p.progress||{}).forEach(key=>{const i=+key, r=p.progress[key], s=STEPS[i]; if(!s)return;
-    GS.done[i]=true; GS.pts[i]=r.points; status[i]=r.points===r.maxPoints?"first":"retry";
+    GS.done[i]=true; GS.pts[i]=r.points; GS.ans[i]=r.answer; GS.fb[i]=r.feedback; status[i]=r.points===r.maxPoints?"first":"retry";
     if(r.solution)applySolution(i,r.solution);
     else{const ln=r.points===r.maxPoints&&r.answer&&r.answer.rows?ownLines(r.answer.rows):(ownSaved[i]||null);
       if(ln&&ln.length)s.lines=ln;}});
@@ -1040,6 +1047,7 @@ async function submitGraded(s){
     const r=await api({action:"submit-step",attempt_id:GS.id,step:i,answer,signals:window.IACSignals?IACSignals.take():null});
     if(!graded()||k!==i)return;
     tries++; fb=r.feedback; GS.done[i]=true; GS.pts[i]=r.points;
+    if(r.first&&GS.ans[i]===undefined){GS.ans[i]=answer;GS.fb[i]=JSON.parse(JSON.stringify(r.feedback));} // the scored submission, for looking back
     if(r.next&&STEPS[i+1]&&STEPS[i+1].locked)STEPS[i+1]=r.next; // the server sends each step's text when it is reached
     if(r.solution){applySolution(i,r.solution);rebuildBooks();}
     else if(r.correct||(r.feedback&&r.feedback.all)){const ln=ownLines(answer.rows); if(ln.length){s.lines=ln;ownSave(i,ln);rebuildBooks();}}
@@ -1143,6 +1151,7 @@ function grade(s){
   return {res,all,notes,amtWrong:res.some(x=>x.cls==="bad-n"&&x.msg.indexOf("amount is not")>-1)};
 }
 function renderEntry(){
+  if(graded()&&VIEW!=null){renderReview(VIEW);return;}
   const el=$("entry");
   if(k>=N&&!recap){renderDone();return;}
   if(recap){renderRecap();return;}
@@ -1211,6 +1220,8 @@ function renderDone(){
 $("entry").addEventListener("click",e=>{
   const b=e.target.closest("[data-act]"); if(!b||b.disabled)return;
   const act=b.dataset.act, s=STEPS[k];
+  if(act==="rvGo"){reviewStep(+b.dataset.i);return;}
+  if(act==="rvBack"){if(graded()){VIEW=null;render(false);scrollEntry();rvFocus();}return;}
   if(graded()&&/^(hint|show|back|reset|cancelReset|resetSame|resetNew)$/.test(act))return;
   if(graded()&&BUSY)return;
   if(graded()&&act==="check"){submitGraded(s);return;}
@@ -1243,8 +1254,74 @@ $("entry").addEventListener("change",onField);
 $("entry").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".rec input")){e.preventDefault();if(graded()&&!GS.done[k])return;/* graded: submit only with the button */const c=$("entry").querySelector('[data-act="check"]');if(c)c.click();}});
 function scrollEntry(){const p=$("pEntry");const r=p.getBoundingClientRect();const top=parseFloat(getComputedStyle(p).scrollMarginTop)||0;if(r.top<top-2||r.top>window.innerHeight*0.6)p.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
 
+// ---------- graded mode: look back at submitted steps (view only) ----------
+// The step the student is working on (or the entry just posted). Any submitted step can be opened to view
+// the scored first submission, its feedback and, when the class shows answers, the solution. Nothing can be changed.
+function curStep(){return recap?k-1:Math.min(k,N-1);}
+function isCur(i){return i===curStep()&&k<N;}
+function canView(i){return graded()&&!!GS&&i>=0&&i<N&&(isCur(i)||!!GS.done[i]);}
+function reviewStep(i){
+  if(!graded()||BUSY||!canView(i))return;
+  VIEW=isCur(i)?null:i;
+  render(false); scrollEntry();
+  if(VIEW!=null)focusAct("rvBack");else rvFocus();
+}
+function reviewNav(i){
+  let prev=-1,next=-1;
+  for(let j=i-1;j>=0;j--)if(GS.done[j]&&!isCur(j)){prev=j;break;}
+  for(let j=i+1;j<N;j++)if(GS.done[j]&&!isCur(j)){next=j;break;}
+  const lab=j=>esc(STEPS[j].tickLabel||STEPS[j].ref);
+  const nav='<div class="grp">'+(prev>=0?'<button class="btn small" data-act="rvGo" data-i="'+prev+'">← '+lab(prev)+'</button>':'')+(next>=0?'<button class="btn small" data-act="rvGo" data-i="'+next+'">'+lab(next)+' →</button>':'')+'</div>';
+  const back=k>=N?(GS.finishedAt?"Back to your score":"Back to finishing"):recap?"Back to where you left off":"Back to step "+(k+1);
+  return '<div class="actions">'+nav+'<div class="grp"><button class="btn primary" data-act="rvBack">'+back+' →</button></div></div>';
+}
+// How a submitted value reads in the review, following the page's own field types.
+function rvMoney(f){return !f.kind&&!f.pct&&!f.dec&&f.box!=="N"&&(!f.unit||f.unit==="$");}
+function rvVal(f,v){
+  if(v==null||v==="")return "(blank)";
+  const t=String(v).trim();
+  if(f.kind&&f.opts){const o=f.opts.find(o=>String(o[0])===t);return o?String(o[1]):t;}
+  if(f.pct||f.unit==="%")return t.replace(/%$/,"")+"%";
+  if(f.unit&&f.unit!=="$")return t+" "+f.unit;
+  if(!rvMoney(f)||/^[-−(]/.test(t))return t;
+  return "$"+t.replace(/^\$\s*/,"");
+}
+function rvFocus(){if(focusAct("next")||focusAct("finish")||focusAct("finishG"))return;const f=document.querySelector("#entry select:not([disabled]),#entry input:not([disabled])");if(f)f.focus({preventScroll:true});}
+function rvMark(r){if(!r)return '';const ok=r.ok===true||r.cls==="ok";return '<div class="fmsg '+(ok?"ok":"no")+'"><span>'+(ok?"✓":"✗")+'</span><span>'+esc(r.msg||"")+'</span></div>';}
+function renderReview(i){
+  const s=STEPS[i], a=GS.ans[i], fb=GS.fb[i], p=GS.pts[i]||0, mx=GS.max&&GS.max[i]!=null?GS.max[i]:maxPts(i);
+  $("entryH").textContent="Looking back"; $("entrySub").textContent="View only";
+  let h='<div class="rv-note"><b>View only.</b> You already submitted this step, so it can\'t be changed. Your first submission earned '+p+' of '+mx+(mx===1?" point":" points")+'.</div>'+
+    metaLine(s,i)+'<h3 class="entry-title">'+esc(s.title)+'</h3><p class="entry-desc">'+esc(s.desc)+'</p>';
+  if(s.type==="entry"){
+    if(a&&Array.isArray(a.rows)){
+      h+='<p class="note" style="margin-top:0">Your first submission (the one that was scored):</p><table class="je"><thead><tr><th>Account</th><th class="r">Debit</th><th class="r">Credit</th></tr></thead><tbody>';
+      a.rows.forEach((r,j)=>{const f=fb&&fb.res?fb.res[j]:null;
+        h+='<tr><td'+(r.cr&&!r.dr?' class="cr-name"':'')+'>'+esc(r.a&&A[r.a]?A[r.a].name:"(no account)")+'</td><td class="r num dr-amt">'+esc(r.dr||"")+'</td><td class="r num cr-amt">'+esc(r.cr||"")+'</td></tr>';
+        if(f)h+='<tr class="fb"><td colspan="3">'+rvMark(f)+'</td></tr>';});
+      h+='</tbody></table>';
+      if(fb&&fb.notes&&fb.notes.length)h+='<div class="overall no"><ul>'+fb.notes.map(n=>'<li>'+esc(n)+'</li>').join("")+'</ul></div>';
+    } else h+='<p class="note">Your first submission isn\'t available.</p>';
+    if(s.lines)h+='<p class="note">The entry as posted:</p>'+(s.calc?'<div class="calc">'+esc(s.calc)+'</div>':'')+jeTable(s)+(s.why?'<div class="why"><b>Why this entry</b><br>'+esc(s.why)+'</div>':'');
+  } else {
+    h+=s.pre||"";
+    const vals=a&&a.vals||{};
+    h+='<div class="fields">';
+    s.fields.forEach(f=>{const r=fb&&fb.res?fb.res[f.id]:null, shown=rvVal(f,vals[f.id]);
+      const sub=f.kind==="cls"&&f.amt!=null?'<small class="num">'+d$(f.amt)+'</small>':f.sub?'<small>'+esc(f.sub)+'</small>':'';
+      h+='<div class="field'+(r?(r.ok?" ok":" no"):"")+'"><div class="frow"><div class="flabel">'+esc(f.label)+sub+'</div><div class="rv-ans">'+esc(shown)+'</div></div>'+rvMark(r);
+      if(f.ans!=null&&!(r&&r.ok)){const c=typeof f.ans==="number"&&rvMoney(f)?d$(f.ans):rvVal(f,f.ans);h+='<div class="work">Correct answer: '+esc(c)+'</div>';}
+      if(f.work!=null)h+='<div class="work">'+esc(f.work)+'</div>';
+      h+='</div>';});
+    h+='</div>';
+    if(!a)h+='<p class="note">Your first submission isn\'t available.</p>';
+    if(s.why)h+='<div class="why"><b>Why it matters</b><br>'+esc(s.why)+'</div>';
+  }
+  $("entry").innerHTML=h+reviewNav(i);
+}
+
 function goTo(i){
-  if(graded())return;
+  if(graded()){reviewStep(i);return;}
   i=Math.max(0,Math.min(N-1,i));
   if(i<k){for(let j=i;j<N;j++)status[j]=null;}
   else for(let j=k;j<i;j++)if(!status[j])status[j]="skipped";
@@ -1427,7 +1504,9 @@ function renderBar(){
   const sc=$("score"); sc.hidden=done===0; sc.textContent="First-try correct: "+first+" of "+done;
   gBar();
   document.querySelectorAll(".tick").forEach(t=>{const i=+t.dataset.i, s=STEPS[i];
-    t.className="tick"+(i<k?" done":"")+((working&&i===k)||(recap&&i===k-1)?" cur":"")+(status[i]?" s-"+status[i]:"");
+    const gm=graded(), cur=gm&&VIEW!=null?i===VIEW:(working&&i===k)||(recap&&i===k-1), can=gm&&canView(i);
+    t.className="tick"+(i<k?" done":"")+(cur?" cur":"")+(status[i]?" s-"+status[i]:"")+(can?" can":"");
+    if(gm){t.setAttribute("aria-disabled",String(!can));if(cur)t.setAttribute("aria-current","step");else t.removeAttribute("aria-current");}else{t.removeAttribute("aria-disabled");t.removeAttribute("aria-current");}
     t.title=s.ref+" · "+s.title+(status[i]?" ("+SLAB[status[i]]+")":i<k?"":" (click to jump here)");
     t.setAttribute("aria-label",PHASE_NAME[s.phase]+" "+s.ref+": "+s.title+(status[i]?", "+SLAB[status[i]]:""));
   });
