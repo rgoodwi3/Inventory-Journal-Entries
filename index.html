@@ -764,7 +764,7 @@ function eq(b){
 }
 
 let STEPS=[],N=0,NT=0,BOOKS=[],EQS=[],UNITS=[],MAXA=1,seed=0;
-function buildSet(sd){
+function buildSet(sd){WORK=[];FORMK=-1;
   seed=sd; STEPS=gen(sd); N=STEPS.length; NT=STEPS.filter(s=>s.phase!=="year").length;
   BOOKS=[]; UNITS=[0]; const bk=emptyBook(); BOOKS.push(JSON.parse(JSON.stringify(bk)));
   for(let i=0;i<N;i++){postStep(bk,STEPS[i],i);BOOKS.push(JSON.parse(JSON.stringify(bk)));UNITS.push(UNITS[i]+(STEPS[i].units||0));}
@@ -790,9 +790,9 @@ let k=0, recap=false, status=[], rows=[], fb=null, tries=0, revealed=false, show
 // GS = the graded attempt as the server reports it. It never holds the seed or any answer the server hasn't returned.
 let MODE="practice", GS=null, PENDING=null, BUSY=false, gwarn=null;
 let VIEW=null; // graded mode: the submitted step being looked at (view only), or null for the current step
-function save(){try{
+function save(){try{stash();
   if(MODE==="graded"&&GS)localStorage.setItem(GKEY,JSON.stringify({attempt:GS.id,course:GS.course}));
-  else if(seed)localStorage.setItem(KEY,JSON.stringify({seed,k,recap,status,year:YEAR}));
+  else if(seed)localStorage.setItem(KEY,JSON.stringify({seed,k,recap,status,year:YEAR,work:WORK}));
   if(!PENDING)localStorage.setItem(MKEY,MODE);
   const v={};VIEWS.forEach(x=>v[x]=$("v-"+x).checked);localStorage.setItem(KEY+".views",JSON.stringify(v));
   localStorage.setItem(KEY+".hide",$("hideIdle").checked?"1":"0");
@@ -814,11 +814,24 @@ function loadPractice(hashSeed){
   try{st=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}
   if(st&&st.year!==YEAR)st=null;
   if(hashSeed&&(!st||st.seed!==hashSeed)){buildSet(hashSeed);fresh();return;}
-  if(st&&st.seed){try{buildSet(st.seed);k=Math.max(0,Math.min(N,st.k|0));recap=!!st.recap&&k>0;status=Array.isArray(st.status)&&st.status.length===N?st.status:new Array(N).fill(null);if(k<N)startForm();return;}catch(e){}}
+  if(st&&st.seed){try{buildSet(st.seed);WORK=workIn(st.work);k=Math.max(0,Math.min(N,st.k|0));recap=!!st.recap&&k>0;status=Array.isArray(st.status)&&st.status.length===N?st.status:new Array(N).fill(null);if(k<N)startForm();return;}catch(e){}}
   buildSet(randomSeed()); fresh();
 }
 function fresh(){k=0;recap=false;status=new Array(N).fill(null);startForm();}
-function startForm(){rows=k<N?(STEPS[k].lines||new Array(STEPS[k].lineCount||0).fill(0)).map(()=>({a:"",dr:"",cr:""})):[];fb=null;tries=0;revealed=false;showHint=false;confirmReset=false;gwarn=null;}
+function startForm0(){rows=k<N?(STEPS[k].lines||new Array(STEPS[k].lineCount||0).fill(0)).map(()=>({a:"",dr:"",cr:""})):[];fb=null;tries=0;revealed=false;showHint=false;confirmReset=false;gwarn=null;}
+// Practice keeps each step's work (what was entered, checked or shown) so moving between steps, reloading
+// or leaving the page doesn't lose it. WORK[i] is step i's form; it's saved with the practice set.
+// FORMK is the step the form on screen belongs to.
+let WORK=[],FORMK=-1;
+function workIn(w){return Array.isArray(w)?w.map(x=>x&&typeof x==="object"&&Array.isArray(x.rows)?x:null):[];}
+function stash(){if(MODE!=="graded"&&FORMK>=0&&FORMK<N)WORK[FORMK]={rows,fb,tries,revealed,showHint};}
+function startForm(){stash();FORMK=k;
+  if(MODE!=="graded"&&WORK[k]){const w=WORK[k];rows=w.rows;fb=w.fb;tries=w.tries|0;revealed=!!w.revealed;showHint=!!w.showHint;confirmReset=false;gwarn=null;return;}
+  startForm0();}
+// Save practice work as it's typed, and when the page is left.
+document.addEventListener("input",()=>{if(MODE!=="graded")setTimeout(save,0);});
+document.addEventListener("change",()=>{if(MODE!=="graded")setTimeout(save,0);});
+window.addEventListener("pagehide",()=>{save();});
 function stepAccounts(i){return i>=0&&i<N?new Set((STEPS[i].lines||[]).map(l=>l.a)):new Set();}
 // ---------- graded mode (server) ----------
 // The class and lab come from the course page link: ?course=<id>&lab=inventory-journal-entries
@@ -1400,8 +1413,7 @@ function renderReview(i){
 function goTo(i){
   if(graded()){reviewStep(i);return;}
   i=Math.max(0,Math.min(N-1,i));
-  if(i<k){for(let j=i;j<N;j++)status[j]=null;}
-  else for(let j=k;j<i;j++)if(!status[j])status[j]="skipped";
+  if(i>k)for(let j=k;j<i;j++)if(!status[j])status[j]="skipped";
   k=i; recap=false; startForm(); render(true); scrollEntry();
 }
 
